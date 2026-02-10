@@ -1,0 +1,39 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace SistemaPulperia.Models.Entities
+{
+    public class Persona
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "El primer nombre es obligatorio")]
+        [StringLength(50)]
+        public string PrimerNombre { get; set; }
+
+        [StringLength(50)]
+        public string? SegundoNombre { get; set; }
+
+        [Required(ErrorMessage = "El primer apellido es obligatorio")]
+        [StringLength(50)]
+        public string PrimerApellido { get; set; }
+
+        [StringLength(50)]
+        public string? SegundoApellido { get; set; }
+
+        [StringLength(16)] // Formato 000-000000-0000X
+        public string? Cedula { get; set; }
+
+        [EmailAddress]
+        public string? EmailContacto { get; set; }
+
+        public string? Telefono { get; set; }
+        public string? Direccion { get; set; }
+
+        public bool Activo { get; set; } = true;
+        public DateTime FechaRegistro { get; set; } = DateTime.Now;
+
+        // Propiedad de navegación hacia la Cuenta
+        public virtual Cuenta Cuenta { get; set; }
+    }
+}

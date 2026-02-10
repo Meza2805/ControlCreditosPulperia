@@ -1,0 +1,180 @@
+:root {
+    --midnight: #0f172a;
+    --gold: #d4af37;
+    --gold-gradient: linear-gradient(135deg, #d4af37 0%, #f1d27b 100%);
+    --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Base y Scroll */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Navbar Dinámica - CAMBIOS DE COLOR AQUÍ */
+.navigation-clean {
+    padding: 25px 0;
+    transition: var(--transition);
+    background: transparent;
+    z-index: 1050;
+}
+
+/* Estado al hacer Scroll */
+.navigation-clean.scrolled {
+    padding: 12px 0;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+/* Enlaces: Blancos al inicio, Negros al hacer scroll */
+.navbar-nav .nav-link-custom {
+    color: #ffffff !important; /* Blanco inicial */
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-decoration: none !important;
+    padding: 10px 18px !important;
+    transition: color 0.3s ease;
+}
+
+/* Cambio a Negro/Azul al hacer scroll */
+.navigation-clean.scrolled .navbar-nav .nav-link-custom {
+    color: var(--midnight) !important;
+}
+
+/* Hover: Siempre Dorado */
+.navbar-nav .nav-link-custom:hover {
+    color: var(--gold) !important;
+}
+
+/* Logo con filtro blanco inicial */
+.brand-logo-img {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
+    transition: var(--transition);
+    filter: brightness(0) invert(1); /* Lo hace blanco al inicio */
+}
+
+/* Logo normal al hacer scroll */
+.navigation-clean.scrolled .brand-logo-img {
+    height: 45px;
+    filter: none; /* Recupera sus colores originales */
+}
+
+/* Hero Section */
+.hero-master {
+    height: 100vh;
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-visual-filter {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.6) 100%);
+    z-index: 2;
+}
+
+.hero-bg-media {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+}
+
+.hero-bg-media img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 3;
+    max-width: 900px;
+    text-align: center;
+    padding: 0 20px;
+    color: white;
+}
+
+.text-gradient-gold {
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-tag {
+    display: inline-block;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 5px 25px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    margin-bottom: 2rem;
+}
+
+/* Botones y Cards */
+.btn-gold-action {
+    background: var(--gold-gradient);
+    color: var(--midnight);
+    padding: 16px 40px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: var(--transition);
+    display: inline-block;
+}
+
+.service-card-premium {
+    background: white;
+    padding: 40px;
+    border-radius: 24px;
+    border: 1px solid #f1f5f9;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.s-card-icon { font-size: 2.5rem; color: var(--gold); margin-bottom: 1.5rem; }
+
+/* Contacto y Footer */
+.bg-midnight { background-color: #070b14 !important; }
+.footer-dark { background: #070b14; color: white; }
+.gold-text { color: var(--gold) !important; }
+.cinzel { font-family: 'Cinzel', serif; }
+.py-10 { padding-top: 6rem; padding-bottom: 6rem; }
+
+.brand-symbol {
+    background: var(--midnight);
+    color: var(--gold);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* Mejora para los iconos de la sección inflada */
+.service-card-premium .s-card-icon i {
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.service-card-premium:hover .s-card-icon i {
+    transform: scale(1.2) rotate(5deg);
+    color: var(--midnight); /* Cambia ligeramente el tono al hacer hover */
+}
+
+/* Ajuste para que las tarjetas se vean bien en móviles */
+@media (max-width: 576px) {
+    .service-card-premium {
+        padding: 30px 20px;
+    }
+}

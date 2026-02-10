@@ -1,0 +1,175 @@
+﻿@{
+    ViewData["Title"] = "Pulpería Doña Reyna | Inicio";
+}
+
+<nav class="navbar navbar-expand-lg fixed-top navigation-clean shadow-sm">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <img src="~/img/site/Logo.png" alt="Logo" class="brand-logo-img me-2" asp-append-version="true" />
+        </a>
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navRes">
+            <i class="bi bi-list fs-1 text-white" id="menu-icon"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navRes">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link-custom" href="#nosotros">Legado</a></li>
+                <li class="nav-item"><a class="nav-link-custom" href="#servicios">Servicios</a></li>
+                <li class="nav-item"><a class="nav-link-custom" href="#contacto">Contacto</a></li>
+                <li class="ms-lg-4">
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-dark rounded-pill px-4 text-gold fw-bold shadow-sm border-0">
+                        ACCESO PRIVADO
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section id="inicio" class="hero-master">
+    <div class="hero-visual-filter"></div>
+    <div class="hero-bg-media">
+        <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2000" alt="Background">
+    </div>
+    <div class="hero-content" data-aos="fade-up">
+        <span class="hero-tag">DIOS PROVEERÁ</span>
+        <h1 class="display-1 fw-bold mb-4">
+            Excelencia que <br><span class="text-gradient-gold">trasciende el tiempo.</span>
+        </h1>
+        <p class="fs-5 text-white-50 mb-5">Más de una década de compromiso inquebrantable con nuestra comunidad.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="#servicios" class="btn-gold-action shadow">Explorar Variedad</a>
+        </div>
+    </div>
+</section>
+
+<section id="nosotros" class="py-10 bg-white">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="position-relative">
+                    <img src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1000" class="img-fluid rounded-4 shadow-lg" alt="Legado">
+                    <div class="bg-gold p-4 text-white position-absolute bottom-0 start-0 m-4 rounded-3 shadow d-none d-md-block">
+                        <h4 class="fw-bold mb-0">10+ Años</h4>
+                        <small>Tradición Familiar</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <h6 class="text-gold fw-bold ls-2 mb-3 text-uppercase">Nuestra Historia</h6>
+                <h2 class="display-5 fw-bold mb-4">Un legado fundado en la fe y el servicio.</h2>
+                <p class="text-muted fs-5 mb-5">Bajo el lema "Dios Proveerá", hemos crecido para ser el corazón del barrio, ofreciendo rapidez y variedad inigualable.</p>
+                <div class="row g-4 text-dark">
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-3 border-start border-4 border-gold shadow-sm">
+                            <h6 class="fw-bold mb-1">Atención Rápida</h6>
+                            <p class="small text-muted mb-0">Su tiempo es nuestra prioridad.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-3 border-start border-4 border-primary shadow-sm">
+                            <h6 class="fw-bold mb-1">Variedad Total</h6>
+                            <p class="small text-muted mb-0">Todo en un solo lugar.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="servicios" class="py-10 bg-light">
+    <div class="container text-dark">
+        <div class="text-center mb-5" data-aos="fade-down">
+            <h6 class="text-gold fw-bold ls-2 mb-2 text-uppercase">Nuestro Catálogo</h6>
+            <h2 class="display-6 fw-bold">Variedad Total para su Hogar</h2>
+            <div class="mx-auto bg-gold" style="height: 3px; width: 60px;"></div>
+        </div>
+        
+        <div class="row g-4">
+            @{
+                var servicios = new[] {
+                    new { Icon = "egg", Title = "Canasta Básica", Desc = "Arroz, frijoles, aceite y granos de primera calidad." },
+                    new { Icon = "cake", Title = "Panadería Fresca", Desc = "Pan calientito todos los días para su café y cena." },
+                    new { Icon = "life-preserver", Title = "Carnicería", Desc = "Cortes frescos de res, cerdo y pollo nacional." },
+                    new { Icon = "cup-straw", Title = "Bebidas y Sodas", Desc = "Gaseosas y jugos siempre helados para usted." },
+                    new { Icon = "bank", Title = "Gestión Bancaria", Desc = "Pagos de servicios, depósitos y retiros rápidos." },
+                    new { Icon = "printer", Title = "Librería y Copias", Desc = "Papelería, útiles, impresiones y fotocopias." },
+                    new { Icon = "magic", Title = "Belleza y Salud", Desc = "Maquillaje, pinturas de uña y botiquín médico." },
+                    new { Icon = "gender-ambiguous", Title = "Ropa e Íntimos", Desc = "Prendas íntimas para dama y caballero de calidad." },
+                    new { Icon = "house-heart", Title = "Hogar y Limpieza", Desc = "Escobas, desinfectantes y artículos de aseo." },
+                    new { Icon = "umbrella", Title = "Temporada", Desc = "Sombrillas, capas y artículos según la época." },
+                    new { Icon = "paw", Title = "Mascotas", Desc = "Alimento nutritivo para sus animales de casa." }
+                };
+            }
+
+            @foreach (var item in servicios) {
+                <div class="col-md-6 col-lg-4 mb-4" data-aos="zoom-in">
+                    <div class="service-card-premium h-100 shadow-sm border-0 rounded-4 p-4 text-center">
+                        <div class="s-card-icon mb-3">
+                            <i class="bi bi-@item.Icon fs-1 text-gold"></i>
+                        </div>
+                        <h4 class="fw-bold text-midnight">@item.Title</h4>
+                        <p class="text-muted small mb-0">@item.Desc</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+<section id="contacto" class="py-10 bg-midnight text-white">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-5" data-aos="fade-right">
+                <h2 class="display-6 fw-bold gold-text mb-4">Visítanos</h2>
+                <div class="d-flex mb-4">
+                    <div class="brand-symbol me-3" style="width: 50px; height: 50px;"><i class="bi bi-clock"></i></div>
+                    <div><h6 class="fw-bold mb-0">Horario</h6><small class="text-white-50">L-D: 5:30 AM - 9:00 PM</small></div>
+                </div>
+                <div class="d-flex mb-4">
+                    <div class="brand-symbol me-3" style="width: 50px; height: 50px;"><i class="bi bi-geo-alt"></i></div>
+                    <div><h6 class="fw-bold mb-0">Ubicación</h6><small class="text-white-50">Managua, Nicaragua.</small></div>
+                </div>
+            </div>
+            <div class="col-lg-7" data-aos="fade-left">
+                <div class="bg-white p-5 rounded-4 shadow-lg text-dark">
+                    <h4 class="fw-bold mb-4 text-dark">Escríbenos</h4>
+                    <form class="row g-3">
+                        <div class="col-md-6"><input type="text" class="form-control bg-light border-0 py-3" placeholder="Nombre"></div>
+                        <div class="col-md-6"><input type="email" class="form-control bg-light border-0 py-3" placeholder="Correo"></div>
+                        <div class="col-12"><textarea class="form-control bg-light border-0" rows="3" placeholder="Mensaje"></textarea></div>
+                        <div class="col-12"><button type="button" class="btn btn-dark w-100 py-3 fw-bold gold-text rounded-pill shadow">ENVIAR</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer-dark py-5 border-top border-white-10">
+    <div class="container text-center">
+        <img src="~/img/site/Logo.png" alt="Logo" class="mb-4" style="max-height: 80px; filter: brightness(0) invert(1);" />
+        <h3 class="gold-text cinzel mb-2">Dios Proveerá</h3>
+        <p class="text-white-50 small mb-5 ls-1">PULPERÍA DOÑA REYNA | EST. 2016</p>
+        <div class="pt-4 border-top border-white-10 text-white-50">
+            <div class="row align-items-center small">
+                <div class="col-md-6 text-md-start mb-2 mb-md-0">&copy; 2026 Todos los derechos reservados.</div>
+                <div class="col-md-6 text-md-end">SHEKINAH <span class="gold-text fw-bold">SERVICES</span></div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+@section Scripts {
+    <script>
+        window.addEventListener('scroll', function() {
+            const icon = document.getElementById('menu-icon');
+            if (window.scrollY > 50) {
+                icon.classList.remove('text-white');
+                icon.classList.add('text-dark');
+            } else {
+                icon.classList.remove('text-dark');
+                icon.classList.add('text-white');
+            }
+        });
+    </script>
+}
