@@ -1,5 +1,10 @@
 ﻿@{
     ViewData["Title"] = "Pulpería Doña Reyna | Inicio";
+    
+    // Lógica para automatizar la antigüedad del negocio (Fundada en 2009)
+    var anioFundacion = 2009;
+    var anioActual = DateTime.Now.Year;
+    var antiguedad = anioActual - anioFundacion;
 }
 
 <nav class="navbar navbar-expand-lg fixed-top navigation-clean shadow-sm">
@@ -14,6 +19,7 @@
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item"><a class="nav-link-custom" href="#nosotros">Legado</a></li>
                 <li class="nav-item"><a class="nav-link-custom" href="#servicios">Servicios</a></li>
+                <li class="nav-item"><a class="nav-link-custom" href="#testimonios">Opiniones</a></li>
                 <li class="nav-item"><a class="nav-link-custom" href="#contacto">Contacto</a></li>
                 <li class="ms-lg-4">
                     <a asp-controller="Account" asp-action="Login" class="btn btn-dark rounded-pill px-4 text-gold fw-bold shadow-sm border-0">
@@ -32,11 +38,9 @@
     </div>
     <div class="hero-content" data-aos="fade-up">
         <span class="hero-tag">DIOS PROVEERÁ</span>
-        <h1 class="display-1 fw-bold mb-4">
-            Excelencia que <br><span class="text-gradient-gold">trasciende el tiempo.</span>
-        </h1>
-        <p class="fs-5 text-white-50 mb-5">Más de una década de compromiso inquebrantable con nuestra comunidad.</p>
-        <div class="d-flex justify-content-center gap-3">
+        <h1 class="display-1 fw-bold mb-4">Excelencia que <br><span class="text-gradient-gold">trasciende el tiempo.</span></h1>
+        <p class="fs-5 text-white-50 mb-5">Más de una década de compromiso inquebrantable desde @anioFundacion.</p>
+        <div class="d-flex justify-content-center">
             <a href="#servicios" class="btn-gold-action shadow">Explorar Variedad</a>
         </div>
     </div>
@@ -48,16 +52,16 @@
             <div class="col-lg-6" data-aos="fade-right">
                 <div class="position-relative">
                     <img src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1000" class="img-fluid rounded-4 shadow-lg" alt="Legado">
-                    <div class="bg-gold p-4 text-white position-absolute bottom-0 start-0 m-4 rounded-3 shadow d-none d-md-block">
-                        <h4 class="fw-bold mb-0">10+ Años</h4>
-                        <small>Tradición Familiar</small>
+                    <div class="bg-gold p-4 text-white position-absolute bottom-0 start-0 m-4 rounded-3 shadow-lg d-none d-md-block text-shadow-dark">
+                        <h4 class="fw-bold mb-0">@antiguedad+ Años</h4>
+                        <small class="fw-bold">Tradición Familiar desde @anioFundacion</small>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left">
                 <h6 class="text-gold fw-bold ls-2 mb-3 text-uppercase">Nuestra Historia</h6>
                 <h2 class="display-5 fw-bold mb-4">Un legado fundado en la fe y el servicio.</h2>
-                <p class="text-muted fs-5 mb-5">Bajo el lema "Dios Proveerá", hemos crecido para ser el corazón del barrio, ofreciendo rapidez y variedad inigualable.</p>
+                <p class="text-muted fs-5 mb-5">Bajo el lema "Dios Proveerá", hemos crecido durante @antiguedad años para ser el corazón del barrio.</p>
                 <div class="row g-4 text-dark">
                     <div class="col-sm-6">
                         <div class="p-3 bg-light rounded-3 border-start border-4 border-gold shadow-sm">
@@ -84,31 +88,24 @@
             <h2 class="display-6 fw-bold">Variedad Total para su Hogar</h2>
             <div class="mx-auto bg-gold" style="height: 3px; width: 60px;"></div>
         </div>
-        
         <div class="row g-4">
             @{
                 var servicios = new[] {
-                    new { Icon = "egg", Title = "Canasta Básica", Desc = "Arroz, frijoles, aceite y granos de primera calidad." },
-                    new { Icon = "cake", Title = "Panadería Fresca", Desc = "Pan calientito todos los días para su café y cena." },
-                    new { Icon = "life-preserver", Title = "Carnicería", Desc = "Cortes frescos de res, cerdo y pollo nacional." },
-                    new { Icon = "cup-straw", Title = "Bebidas y Sodas", Desc = "Gaseosas y jugos siempre helados para usted." },
-                    new { Icon = "bank", Title = "Gestión Bancaria", Desc = "Pagos de servicios, depósitos y retiros rápidos." },
-                    new { Icon = "printer", Title = "Librería y Copias", Desc = "Papelería, útiles, impresiones y fotocopias." },
-                    new { Icon = "magic", Title = "Belleza y Salud", Desc = "Maquillaje, pinturas de uña y botiquín médico." },
-                    new { Icon = "gender-ambiguous", Title = "Ropa e Íntimos", Desc = "Prendas íntimas para dama y caballero de calidad." },
-                    new { Icon = "house-heart", Title = "Hogar y Limpieza", Desc = "Escobas, desinfectantes y artículos de aseo." },
-                    new { Icon = "umbrella", Title = "Temporada", Desc = "Sombrillas, capas y artículos según la época." },
-                    new { Icon = "paw", Title = "Mascotas", Desc = "Alimento nutritivo para sus animales de casa." }
+                    new { Icon = "egg", Title = "Canasta Básica", Desc = "Arroz, frijoles y granos de primera." },
+                    new { Icon = "phone-vibrate", Title = "Recargas", Desc = "Electrónicas para todas las operadoras." },
+                    new { Icon = "play-btn", Title = "Streaming", Desc = "Netflix, Disney+, Amazon y más." },
+                    new { Icon = "shop", Title = "Carnicería", Desc = "Cortes frescos de res, cerdo y pollo." },
+                    new { Icon = "bank", Title = "Agente Banpro", Desc = "Pagos, depósitos y retiros rápidos." },
+                    new { Icon = "cake", Title = "Panadería", Desc = "Pan fresco y calientito todos los días." },
+                    new { Icon = "printer", Title = "Librería", Desc = "Útiles, copias e impresiones láser." },
+                    new { Icon = "magic", Title = "Belleza", Desc = "Maquillaje y cuidado personal." }
                 };
             }
-
             @foreach (var item in servicios) {
-                <div class="col-md-6 col-lg-4 mb-4" data-aos="zoom-in">
+                <div class="col-md-6 col-lg-3 mb-4" data-aos="zoom-in">
                     <div class="service-card-premium h-100 shadow-sm border-0 rounded-4 p-4 text-center">
-                        <div class="s-card-icon mb-3">
-                            <i class="bi bi-@item.Icon fs-1 text-gold"></i>
-                        </div>
-                        <h4 class="fw-bold text-midnight">@item.Title</h4>
+                        <div class="s-card-icon mb-3"><i class="bi bi-@item.Icon fs-1 text-gold"></i></div>
+                        <h5 class="fw-bold text-midnight">@item.Title</h5>
                         <p class="text-muted small mb-0">@item.Desc</p>
                     </div>
                 </div>
@@ -116,44 +113,117 @@
         </div>
     </div>
 </section>
-<section id="contacto" class="py-10 bg-midnight text-white">
+
+<section id="testimonios" class="py-10 bg-white">
     <div class="container">
-        <div class="row g-5">
-            <div class="col-lg-5" data-aos="fade-right">
-                <h2 class="display-6 fw-bold gold-text mb-4">Visítanos</h2>
-                <div class="d-flex mb-4">
-                    <div class="brand-symbol me-3" style="width: 50px; height: 50px;"><i class="bi bi-clock"></i></div>
-                    <div><h6 class="fw-bold mb-0">Horario</h6><small class="text-white-50">L-D: 5:30 AM - 9:00 PM</small></div>
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h6 class="text-gold fw-bold ls-2 mb-2 text-uppercase">La Voz de Nuestra Comunidad</h6>
+            <h2 class="display-6 fw-bold text-dark">Nuestros clientes lo saben</h2>
+            <div class="mx-auto bg-gold" style="height: 3px; width: 60px;"></div>
+        </div>
+
+        <div id="testimonialSlider" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                
+                <div class="carousel-item active">
+                    <div class="testimonial-card">
+                        <img src="~/img/profiles/oscar.PNG" class="profile-img shadow" alt="Oscar">
+                        <div class="stars mb-2">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="testimonial-text">"¡Muy buena la atención! Amabilidad y respeto al atender a los clientes, precio justo de los productos. Encuentras todo lo que esperas de una buena pulpería. Hasta recargas telefónicas, Netflix, Disney, Amazon y agente Banpro."</p>
+                        <h5 class="fw-bold text-midnight mb-0">Oscar Valladares Hernandez</h5>
+                        <small class="text-gold fw-bold">Local Guide</small>
+                    </div>
                 </div>
-                <div class="d-flex mb-4">
-                    <div class="brand-symbol me-3" style="width: 50px; height: 50px;"><i class="bi bi-geo-alt"></i></div>
-                    <div><h6 class="fw-bold mb-0">Ubicación</h6><small class="text-white-50">Managua, Nicaragua.</small></div>
+
+                <div class="carousel-item">
+                    <div class="testimonial-card">
+                        <img src="~/img/profiles/sara.PNG" class="profile-img shadow" alt="Sara">
+                        <div class="stars mb-2">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="testimonial-text">"Muy buena, un día el hijo del dueño nos fio polvorones, saludos a Joseph."</p>
+                        <h5 class="fw-bold text-midnight mb-0">Sara Latino</h5>
+                        <small class="text-muted">1 opinión</small>
+                    </div>
                 </div>
+
+                <div class="carousel-item">
+                    <div class="testimonial-card">
+                        <img src="~/img/profiles/rafael.png" class="profile-img shadow" alt="Rafael">
+                        <div class="stars mb-2">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="testimonial-text">"Excelente atención, tienen de todo lo necesario en aborroteria."</p>
+                        <h5 class="fw-bold text-midnight mb-0">Rafael Pineda</h5>
+                        <small class="text-gold fw-bold">Local Guide</small>
+                    </div>
+                </div>
+
+                <div class="carousel-item">
+                    <div class="testimonial-card">
+                        <img src="~/img/profiles/tania.png" class="profile-img shadow" alt="Tania">
+                        <div class="stars mb-2">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="testimonial-text">"Excelente servicio y calidad de productos."</p>
+                        <h5 class="fw-bold text-midnight mb-0">Tania Perez</h5>
+                        <small class="text-gold fw-bold">Local Guide</small>
+                    </div>
+                </div>
+
             </div>
-            <div class="col-lg-7" data-aos="fade-left">
-                <div class="bg-white p-5 rounded-4 shadow-lg text-dark">
-                    <h4 class="fw-bold mb-4 text-dark">Escríbenos</h4>
-                    <form class="row g-3">
-                        <div class="col-md-6"><input type="text" class="form-control bg-light border-0 py-3" placeholder="Nombre"></div>
-                        <div class="col-md-6"><input type="email" class="form-control bg-light border-0 py-3" placeholder="Correo"></div>
-                        <div class="col-12"><textarea class="form-control bg-light border-0" rows="3" placeholder="Mensaje"></textarea></div>
-                        <div class="col-12"><button type="button" class="btn btn-dark w-100 py-3 fw-bold gold-text rounded-pill shadow">ENVIAR</button></div>
-                    </form>
-                </div>
-            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#testimonialSlider" data-bs-slide="prev">
+                <i class="bi bi-chevron-left text-dark fs-2"></i>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#testimonialSlider" data-bs-slide="next">
+                <i class="bi bi-chevron-right text-dark fs-2"></i>
+            </button>
         </div>
     </div>
 </section>
 
-<footer class="footer-dark py-5 border-top border-white-10">
+<section id="ubicacion" class="bg-light">
+    <div class="row g-0">
+        <div class="col-lg-6 p-5 d-flex flex-column justify-content-center" data-aos="fade-right">
+            <h6 class="text-gold fw-bold mb-2 text-uppercase ls-2">Visítanos</h6>
+            <h2 class="display-5 fw-bold text-dark mb-4">Ubicación Estratégica</h2>
+            <p class="text-dark mb-1 fw-bold">Pulpería Doña Reyna</p>
+            <p class="text-muted">4QCQ+3F7, Unnamed Road, Managua, Nicaragua.</p>
+            <div class="d-flex align-items-center mb-4">
+                <i class="bi bi-clock-fill text-gold me-2"></i>
+                <span class="text-dark">Horario: 5:30 AM – 9:30 PM</span>
+            </div>
+            <a href="https://maps.app.goo.gl/B9UeM8j2GfUj6j7X8" target="_blank" class="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                <i class="bi bi-geo-alt-fill me-2"></i>Abrir en Google Maps
+            </a>
+        </div>
+        <div class="col-lg-6" style="min-height: 450px;">
+         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3042.485559895431!2d-86.21391672628312!3d12.120157832975917!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f73ff41710562f3%3A0x5b983e9a467efd21!2sPulperia%20Do%C3%B1a%20Reyna!5e1!3m2!1ses!2sni!4v1770847682252!5m2!1ses!2sni" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </div>
+</section>
+
+<a href="https://wa.me/50587422881?text=Hola!%20Deseo%20consultar%20sobre%20un%20pedido" class="whatsapp-float" target="_blank">
+    <i class="bi bi-whatsapp"></i>
+</a>
+
+<footer class="footer-dark py-5">
     <div class="container text-center">
         <img src="~/img/site/Logo.png" alt="Logo" class="mb-4" style="max-height: 80px; filter: brightness(0) invert(1);" />
         <h3 class="gold-text cinzel mb-2">Dios Proveerá</h3>
-        <p class="text-white-50 small mb-5 ls-1">PULPERÍA DOÑA REYNA | EST. 2016</p>
+        <p class="text-white-50 small mb-5 ls-1">PULPERÍA DOÑA REYNA | EST. @anioFundacion</p>
         <div class="pt-4 border-top border-white-10 text-white-50">
             <div class="row align-items-center small">
-                <div class="col-md-6 text-md-start mb-2 mb-md-0">&copy; 2026 Todos los derechos reservados.</div>
-                <div class="col-md-6 text-md-end">SHEKINAH <span class="gold-text fw-bold">SERVICES</span></div>
+                <div class="col-md-6 text-md-start mb-2 mb-md-0">© @anioActual Todos los derechos reservados.</div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="shekinah-link-container d-flex align-items-center justify-content-md-end justify-content-center">
+                        <img src="~/img/site/shekinah_logo.png" alt="Logo" class="footer-brand-img me-2" />
+                        <span class="shekinah-brand">SHEKINAH <span class="gold-text fw-bold">SERVICES</span></span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -162,13 +232,14 @@
 @section Scripts {
     <script>
         window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.navigation-clean');
             const icon = document.getElementById('menu-icon');
             if (window.scrollY > 50) {
-                icon.classList.remove('text-white');
-                icon.classList.add('text-dark');
+                nav.classList.add('scrolled');
+                icon.classList.replace('text-white', 'text-dark');
             } else {
-                icon.classList.remove('text-dark');
-                icon.classList.add('text-white');
+                nav.classList.remove('scrolled');
+                icon.classList.replace('text-dark', 'text-white');
             }
         });
     </script>
