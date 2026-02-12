@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
+
+:root {
+    --midnight: #0f172a;
+    --gold: #d4af37;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+.bg-img {
+    background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), 
+                url('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2000');
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content {
+    width: 380px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 40px 32px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+}
+
+.content header {
+    color: var(--gold);
+    font-size: 33px;
+    font-weight: 600;
+    margin: 0 0 35px 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.login-instruction { color: #fff; margin-bottom: 20px; font-size: 14px; }
+
+.google-btn {
+    height: 50px;
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.2);
+    outline: none;
+    background: transparent;
+    border-radius: 50px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.google-btn i { color: #ea4335; font-size: 20px; }
+
+.google-btn:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: var(--gold);
+    transform: translateY(-2px);
+}
+
+.signup { margin-top: 25px; color: #fff; font-size: 13px; }
+.signup a { color: var(--gold); text-decoration: none; font-weight: 500; }
+.signup a:hover { text-decoration: underline; }

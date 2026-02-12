@@ -1,0 +1,84 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+    Layout = null; // No usamos el layout general para mantener el diseño limpio
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Privado | Pulpería Doña Reyna</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true">
+</head>
+<body>
+    <div class="bg-img">
+        <div class="content">
+            <header>Acceso Privado</header>
+            
+            @if (TempData["AlertMessage"] != null)
+            {
+                <div class="alert alert-danger py-2 small mb-3">
+                    @TempData["AlertMessage"]
+                </div>
+            }
+
+            <div class="login-instruction">
+                Inicia sesión con tu cuenta autorizada
+            </div>
+
+            @{
+                var loginProviders = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            }
+
+            @if (loginProviders.Count > 0)
+            {
+                <form asp-action="ExternalLogin" asp-controller="Account" method="post" class="form-horizontal">
+                    <div class="links">
+                        @foreach (var provider in loginProviders)
+                        {
+                            if (provider.Name == "Google")
+                            {
+                                <button type="submit" 
+                                        name="provider" 
+                                        value="@provider.Name" 
+                                        class="google-btn">
+                                    <i class="fab fa-google"></i> <span>Google Account</span>
+                                </button>
+                            }
+                        }
+                    </div>
+                </form>
+            }
+
+            <div class="signup">
+                ¿No tienes acceso? <br>
+                <a href="#contacto">Contacta al administrador</a>
+            </div>
+            
+            <div class="mt-4">
+                <a href="/" class="text-white-50 text-decoration-none small">
+                    <i class="fas fa-arrow-left"></i> Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if (TempData["AlertTitle"] != null)
+    {
+        <script>
+            Swal.fire({
+                title: '@TempData["AlertTitle"]',
+                text: '@TempData["AlertMessage"]',
+                icon: '@TempData["AlertIcon"]',
+                confirmButtonColor: '#d4af37'
+            });
+        </script>
+    }
+</body>
+</html>
