@@ -25,11 +25,12 @@ namespace SistemaPulperia.Controllers
                 .Select(p => new
                 {
                     p.Id,
-                    NombreCompleto = $"{p.PrimerNombre} {p.PrimerApellido}",
                     p.Cedula,
+                    // Concatenamos todo el nombre aquí o lo enviamos separado
+                    NombreCompleto = $"{p.PrimerNombre} {p.SegundoNombre} {p.PrimerApellido} {p.SegundoApellido}".Replace("  ", " ").Trim(),
                     p.Telefono,
-                    p.Activo,
-                    p.EmailContacto
+                    p.Direccion,
+                    p.Activo
                 }).ToListAsync();
             return Json(new { data = personas });
         }
@@ -38,46 +39,55 @@ namespace SistemaPulperia.Controllers
         public async Task<IActionResult> ObtenerPersona(int id)
         {
             var persona = await _context.Personas.FindAsync(id);
+            if (persona == null) return NotFound();
+
+            // Devolvemos el objeto tal cual
             return Json(persona);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Guardar(Persona persona)
-        {
-            // ELIMINAR validaciones de navegación que causan el Error 400
-            ModelState.Remove("Cuentas");
-            ModelState.Remove("Cuenta"); // Por si acaso quedó rastro de la versión anterior
+[HttpPost]
+public async Task<IActionResult> Guardar(Persona persona)
+{
+    ModelState.Remove("Cuentas");
 
-            if (ModelState.IsValid)
+    if (ModelState.IsValid)
+    {
+        try 
+        {
+            // Limpiar la cédula por si acaso (aunque ya lo hacemos en el JS)
+            string cedulaLimpia = persona.Cedula?.Replace("-", "") ?? "";
+
+            // VALIDACIÓN DE DUPLICADOS
+            // Buscamos si existe alguien con esa cédula que NO sea la persona actual
+            bool existe = await _context.Personas
+                .AnyAsync(p => p.Cedula == cedulaLimpia && p.Id != persona.Id);
+
+            if (existe)
             {
-                try
-                {
-                    if (persona.Id == 0)
-                    {
-                        _context.Personas.Add(persona);
-                    }
-                    else
-                    {
-                        _context.Update(persona);
-                    }
-                    await _context.SaveChangesAsync();
-                    return Json(new { success = true });
-                }
-                catch (Exception ex)
-                {
-                    return Json(new { success = false, message = "Error de base de datos: " + ex.Message });
-                }
+                return Json(new { 
+                    success = false, 
+                    message = $"La cédula {persona.Cedula} ya pertenece a otro cliente registrado." 
+                });
             }
 
-            // Si hay error 400, esto nos dirá qué campo exacto falló
-            var errores = string.Join(", ", ModelState.Values
-                .SelectMany(v => v.Errors)
-                .Select(e => e.ErrorMessage));
+            if (persona.Id == 0) {
+                persona.Cedula = cedulaLimpia;
+                _context.Personas.Add(persona);
+            } else {
+                persona.Cedula = cedulaLimpia;
+                _context.Update(persona);
+            }
 
-            return Json(new { success = false, message = "Error de validación: " + errores });
+            await _context.SaveChangesAsync();
+            return Json(new { success = true });
         }
-
-
+        catch (Exception ex) 
+        {
+            return Json(new { success = false, message = "Error de sistema: " + ex.Message });
+        }
+    }
+    return Json(new { success = false, message = "Verifique los datos del formulario." });
+}
         [HttpPost]
         public async Task<IActionResult> Eliminar(int id)
         {

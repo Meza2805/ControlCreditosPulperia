@@ -26,6 +26,9 @@ namespace SistemaPulperia.Data
             // Es vital mantener esta línea para la configuración de Identity
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Persona>()
+                .HasIndex(p => p.Cedula)
+                .IsUnique(); // Esto crea una restricción UNIQUE en SQL Server
             // 2. REGISTRO FORMAL DE LA ENTIDAD: Esto soluciona el error de "not included in the model"
             modelBuilder.Entity<NivelAcceso>(entity =>
             {
