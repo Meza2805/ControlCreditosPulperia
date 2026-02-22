@@ -27,18 +27,18 @@ namespace SistemaPulperia.Data
             base.OnModelCreating(modelBuilder);
 
             // 2. REGISTRO FORMAL DE LA ENTIDAD: Esto soluciona el error de "not included in the model"
-            modelBuilder.Entity<NivelAcceso>(entity => {
+            modelBuilder.Entity<NivelAcceso>(entity =>
+            {
                 entity.ToTable("AspNetRoles"); // Mapea a la tabla física de roles
                 entity.HasBaseType((Type)null); // Desactiva la herencia TPH para evitar discriminadores vacíos
             });
 
-            // Configuración Fluent API: Relación 1 a 1 entre Persona y Cuenta
+            // Configuración Fluent API para relación Persona -> Cuentas (1:N)
             modelBuilder.Entity<Persona>()
-                .HasOne(p => p.Cuenta)
-                .WithOne(c => c.Persona)
-                .HasForeignKey<Cuenta>(c => c.PersonaId)
-                .OnDelete(DeleteBehavior.Cascade);
-
+                .HasMany(p => p.Cuentas) // Una persona tiene muchas cuentas
+                .WithOne(c => c.Persona) // Cada cuenta pertenece a una persona
+                .HasForeignKey(c => c.PersonaId) // La llave foránea está en la tabla Cuenta
+                .OnDelete(DeleteBehavior.Cascade); // Si se borra la persona, se borran sus cuentas
             // Configuración de precisión para montos decimales
             foreach (var property in modelBuilder.Model.GetEntityTypes()
                 .SelectMany(t => t.GetProperties())

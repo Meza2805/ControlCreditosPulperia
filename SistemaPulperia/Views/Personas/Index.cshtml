@@ -1,0 +1,290 @@
+@model IEnumerable<SistemaPulperia.Models.Entities.Persona>
+@{
+    ViewData["Title"] = "Gestión de Personas";
+}
+
+<style>
+    .page-header {
+        background: var(--midnight);
+        color: white;
+        padding: 20px;
+        border-bottom: 3px solid var(--gold);
+        margin-top: 70px;
+    }
+
+    .table-container {
+        padding: 30px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        margin-top: 20px;
+    }
+
+    /* Estilos DataTable */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: var(--gold) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 50px;
+    }
+
+    .thead-midnight {
+        background: var(--midnight);
+        color: var(--gold);
+    }
+
+    /* Modal minimalista */
+    .modal-content {
+        border: 2px solid var(--gold);
+        border-radius: 20px;
+    }
+
+    .modal-header {
+        background: var(--midnight);
+        color: var(--gold);
+        border-radius: 18px 18px 0 0;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--midnight);
+    }
+</style>
+
+<div class="page-header d-flex justify-content-between align-items-center shadow">
+    <div>
+        <h2 class="fw-bold mb-0"><i class="bi bi-people-fill me-2"></i> DIRECTORIO DE PERSONAS</h2>
+        <small class="text-gold">Gestión de Clientes y Proveedores</small>
+    </div>
+    <button class="btn btn-outline-light border-gold text-gold rounded-pill px-4 fw-bold" onclick="abrirModal()">
+        <i class="bi bi-plus-circle me-1"></i> NUEVA PERSONA
+    </button>
+</div>
+
+<div class="container-fluid">
+    <div class="table-container shadow-sm">
+        <table id="tblPersonas" class="table table-hover w-100">
+            <thead class="thead-midnight">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Cédula</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPersona" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="modalTitle">Nueva Persona</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formPersona">
+                    <input type="hidden" id="Id" name="Id" value="0" />
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Primer Nombre *</label>
+                            <input type="text" name="PrimerNombre" id="PrimerNombre" class="form-control rounded-pill"
+                                   required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo Nombre</label>
+                            <input type="text" name="SegundoNombre" id="SegundoNombre"
+                                   class="form-control rounded-pill">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Primer Apellido *</label>
+                            <input type="text" name="PrimerApellido" id="PrimerApellido"
+                                   class="form-control rounded-pill" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segundo Apellido</label>
+                            <input type="text" name="SegundoApellido" id="SegundoApellido"
+                                   class="form-control rounded-pill">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Cédula (Formato RNP)</label>
+                            <input type="text" id="CedulaVisual" class="form-control rounded-pill"
+                                   placeholder="000-000000-0000X">
+                            <input type="hidden" name="Cedula" id="Cedula">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono (8 dígitos)</label>
+                            <input type="text" name="Telefono" id="Telefono" class="form-control rounded-pill"
+                                   maxlength="8">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Correo Electrónico</label>
+                            <input type="email" name="EmailContacto" id="EmailContacto"
+                                   class="form-control rounded-pill">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Dirección</label>
+                            <textarea name="Direccion" id="Direccion" class="form-control rounded-3"
+                                      rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="text-end mt-4">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4"
+                                data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit"
+                                class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold">Guardar Datos</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        let tabla;
+        $(document).ready(function () {
+        // Inicializar DataTable con estilo
+        tabla = $('#tblPersonas').DataTable({
+        ajax: { url: '/Personas/ListarPersonas', dataSrc: 'data' },
+        columns: [
+        { data: 'nombreCompleto' },
+        { data: 'cedula' },
+        { data: 'telefono' },
+        {
+        data: 'activo',
+        render: (data) => data ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>'
+        },
+        {
+        data: 'id',
+        render: function (data) {
+        return `<div class="btn-group">
+        <button class="btn btn-sm btn-outline-primary" onclick="editar(${data})"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="eliminar(${data})"><i class="bi bi-trash"></i></button>
+        </div>`;
+        }
+        }
+        ],
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' }
+        });
+
+        // Submit del formulario
+        $('#formPersona').on('submit', function (e) {
+        e.preventDefault();
+        const formData = $(this).serialize();
+
+        // Mostrar Loader de Sincronización
+        Swal.fire({ title: 'Guardando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+        $.post('/Personas/Guardar', formData, function (res) {
+        if (res.success) {
+        Swal.fire({ icon: 'success', title: '¡Hecho!', showConfirmButton: false, timer: 1500 });
+        $('#modalPersona').modal('hide');
+        tabla.ajax.reload();
+        }
+        });
+        });
+        });
+
+        function abrirModal() {
+        $('#formPersona')[0].reset();
+        $('#Id').val(0);
+        $('#modalTitle').text('Nueva Persona');
+        $('#modalPersona').modal('show');
+        }
+
+        function editar(id) {
+        $.get('/Personas/ObtenerPersona/' + id, function (data) {
+        $('#Id').val(data.id);
+        $('#PrimerNombre').val(data.primerNombre);
+        $('#PrimerApellido').val(data.primerApellido);
+        $('#Cedula').val(data.cedula);
+        $('#Telefono').val(data.telefono);
+        $('#Direccion').val(data.direccion);
+        $('#modalTitle').text('Editar Persona');
+        $('#modalPersona').modal('show');
+        });
+        }
+
+        function eliminar(id) {
+        Swal.fire({
+        title: '¿Eliminar registro?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0f172a',
+        confirmButtonText: 'Sí, eliminar',
+        buttonsStyling: false,
+        customClass: { confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-4 mx-2', cancelButton: 'btn btn-secondary rounded-pill px-4' }
+        }).then((result) => {
+        if (result.isConfirmed) {
+        $.post('/Personas/Eliminar/' + id, () => {
+        tabla.ajax.reload();
+        Swal.fire('Eliminado', '', 'success');
+        });
+        }
+        });
+        }
+
+
+                // 1. Lógica para la Máscara de Cédula Nicaragüense (000-000000-0000X)
+        document.getElementById('CedulaVisual').addEventListener('input', function (e) {
+            let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            let formatted = "";
+
+            if (value.length > 0) formatted += value.substring(0, 3);
+            if (value.length > 3) formatted += "-" + value.substring(3, 9);
+            if (value.length > 9) formatted += "-" + value.substring(9, 14);
+            
+            // La última posición debe ser una letra (según RNP)
+            if (value.length === 14 && !/[A-Z]/.test(value[13])) {
+                value = value.substring(0, 13); 
+            }
+            
+            e.target.value = formatted.substring(0, 16);
+            // Guardar versión limpia (sin guiones) en el input oculto para la DB
+            document.getElementById('Cedula').value = value.substring(0, 14);
+        });
+
+        // 2. Lógica para Teléfono (Solo números y exactamente 8 dígitos)
+        document.getElementById('Telefono').addEventListener('keypress', function (e) {
+            if (!/[0-9]/.test(e.key)) e.preventDefault();
+        });
+
+        // 3. Ajuste al enviar el formulario
+        $('#formPersona').on('submit', function (e) {
+            e.preventDefault();
+            
+            // Validación de longitud de teléfono
+            const tel = $('#Telefono').val();
+            if (tel.length > 0 && tel.length !== 8) {
+                Swal.fire('Error', 'El teléfono debe tener exactamente 8 dígitos', 'error');
+                return;
+            }
+
+            const formData = $(this).serialize();
+            // ... resto de tu lógica de $.post
+        });
+
+                // Validación de Correo Electrónico en tiempo real
+        document.getElementById('EmailContacto').addEventListener('change', function (e) {
+            const email = e.target.value;
+            const regex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/; // Estándar para correos
+
+            if (email.length > 0 && !regex.test(email)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Correo Inválido',
+                    text: 'El formato del correo electrónico no es correcto (ejemplo@correo.com)',
+                    confirmButtonColor: '#0f172a'
+                });
+                e.target.value = ""; // Limpiamos el campo si es inválido
+                e.target.focus();
+            }
+        });
+    </script>
+}

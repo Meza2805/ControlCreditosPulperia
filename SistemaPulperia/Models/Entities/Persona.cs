@@ -24,7 +24,8 @@ namespace SistemaPulperia.Models.Entities
         [StringLength(16)] // Formato 000-000000-0000X
         public string? Cedula { get; set; }
 
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Por favor, ingrese una dirección de correo válida")]
+        [StringLength(100)]
         public string? EmailContacto { get; set; }
 
         public string? Telefono { get; set; }
@@ -33,7 +34,7 @@ namespace SistemaPulperia.Models.Entities
         public bool Activo { get; set; } = true;
         public DateTime FechaRegistro { get; set; } = DateTime.Now;
 
-        // Propiedad de navegación hacia la Cuenta
-        public virtual Cuenta Cuenta { get; set; }
+        // Cambia esto para que sea opcional y no bloquee el modelo
+        public virtual ICollection<Cuenta>? Cuentas { get; set; } = new List<Cuenta>();
     }
 }
