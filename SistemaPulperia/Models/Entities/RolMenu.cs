@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using SistemaPulperia.Web.Models.Entities; // Asegura este using
 
 namespace SistemaPulperia.Web.Models.Entities
 {
@@ -11,17 +12,17 @@ namespace SistemaPulperia.Web.Models.Entities
         public int Id { get; set; }
 
         [Required]
-        public string RolId { get; set; } // ID del Rol (es un string en Identity)
+        public string RolId { get; set; } 
 
         [ForeignKey("RolId")]
-        public virtual ApplicationRole Rol { get; set; } 
+        // CORRECCIÓN: Cambiar ApplicationRole por NivelAcceso
+        public virtual NivelAcceso Rol { get; set; } 
 
         public int MenuId { get; set; }
 
         [ForeignKey("MenuId")]
         public virtual Menu Menu { get; set; }
         
-        // Aquí podrías agregar permisos específicos a futuro
         public bool PuedeCrear { get; set; } = false;
         public bool PuedeEditar { get; set; } = false;
         public bool PuedeEliminar { get; set; } = false;

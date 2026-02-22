@@ -9,14 +9,14 @@ namespace SistemaPulperia.Models.Entities
 
         [Required(ErrorMessage = "El primer nombre es obligatorio")]
         [StringLength(50)]
-        public string PrimerNombre { get; set; }
+        public string PrimerNombre { get; set; } = default!;
 
         [StringLength(50)]
         public string? SegundoNombre { get; set; }
 
         [Required(ErrorMessage = "El primer apellido es obligatorio")]
         [StringLength(50)]
-        public string PrimerApellido { get; set; }
+        public string PrimerApellido { get; set; } = default!;
 
         [StringLength(50)]
         public string? SegundoApellido { get; set; }

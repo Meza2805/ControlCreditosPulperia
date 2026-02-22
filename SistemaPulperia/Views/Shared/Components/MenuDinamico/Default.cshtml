@@ -1,0 +1,31 @@
+@model IEnumerable<SistemaPulperia.Web.Models.Entities.Menu>
+
+@foreach (var menu in Model)
+{
+    @if (menu.SubMenus.Any())
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link-custom dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="@menu.Icono me-1 text-gold"></i> @menu.Nombre
+            </a>
+            <ul class="dropdown-menu shadow border-gold mt-2 animate__animated animate__fadeIn">
+                @foreach (var sub in menu.SubMenus)
+                {
+                    <li>
+                        <a class="dropdown-item py-2" asp-controller="@sub.Controlador" asp-action="@sub.Accion">
+                            <i class="@sub.Icono me-2 text-gold"></i> @sub.Nombre
+                        </a>
+                    </li>
+                }
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link-custom" asp-controller="@menu.Controlador" asp-action="@menu.Accion">
+                <i class="@menu.Icono me-1 text-gold"></i> @menu.Nombre
+            </a>
+        </li>
+    }
+}

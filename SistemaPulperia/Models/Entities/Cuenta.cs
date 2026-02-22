@@ -16,7 +16,7 @@ namespace SistemaPulperia.Models.Entities
 
         [Required]
         [Range(0, 999999.99)]
-        public decimal MontoMaximoCredito { get; set; }
+        public decimal MontoMaximoCredito { get; set; } = 0;
 
         public decimal SaldoActual { get; set; } = 0;
 
