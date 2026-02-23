@@ -29,6 +29,21 @@ namespace SistemaPulperia.Data
             modelBuilder.Entity<Persona>()
                 .HasIndex(p => p.Cedula)
                 .IsUnique(); // Esto crea una restricción UNIQUE en SQL Server
+
+
+            // 1. Configuración de decimales para evitar pérdida de centavos
+            modelBuilder.Entity<Cuenta>()
+                .Property(c => c.MontoMaximoCredito)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Cuenta>()
+                .Property(c => c.SaldoActual)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Transaccion>()
+                .Property(t => t.Monto)
+                .HasPrecision(18, 2);
+
             // 2. REGISTRO FORMAL DE LA ENTIDAD: Esto soluciona el error de "not included in the model"
             modelBuilder.Entity<NivelAcceso>(entity =>
             {
@@ -36,6 +51,12 @@ namespace SistemaPulperia.Data
                 entity.HasBaseType((Type)null); // Desactiva la herencia TPH para evitar discriminadores vacíos
             });
 
+            // 3. Relación Cuenta -> Transacciones (1:N)
+            modelBuilder.Entity<Transaccion>()
+                .HasOne(t => t.Cuenta)
+                .WithMany(c => c.Transacciones)
+                .HasForeignKey(t => t.CuentaId)
+                .OnDelete(DeleteBehavior.Cascade); // Si se borra la cuenta, se van sus movimientos
             // Configuración Fluent API para relación Persona -> Cuentas (1:N)
             modelBuilder.Entity<Persona>()
                 .HasMany(p => p.Cuentas) // Una persona tiene muchas cuentas
@@ -75,6 +96,17 @@ namespace SistemaPulperia.Data
             modelBuilder.Entity<Menu>().HasData(
                 new Menu { Id = 71, PadreId = 70, Nombre = "Administrar Niveles de Acceso", Controlador = "Roles", Accion = "Index", Icono = "bi bi-lock-fill", Orden = 1, Activo = true },
                 new Menu { Id = 72, PadreId = 70, Nombre = "Permisos de Menú", Controlador = "Roles", Accion = "PermisosMenus", Icono = "bi bi-list-check", Orden = 2, Activo = true }
+            );
+
+            // 5. Menú Principal: Gestión de Créditos
+            modelBuilder.Entity<Menu>().HasData(
+                new Menu { Id = 80, Nombre = "Gestión de Créditos", Icono = "bi bi-wallet2", Orden = 5, Activo = true }
+            );
+
+            // 6. Submenús de Créditos
+            modelBuilder.Entity<Menu>().HasData(
+                new Menu { Id = 81, PadreId = 80, Nombre = "Cuentas de Clientes", Controlador = "Cuentas", Accion = "Index", Icono = "bi bi-person-badge", Orden = 1, Activo = true },
+                new Menu { Id = 82, PadreId = 80, Nombre = "Control de Mora", Controlador = "Cuentas", Accion = "Mora", Icono = "bi bi-exclamation-octagon-fill", Orden = 2, Activo = true }
             );
         }
     }

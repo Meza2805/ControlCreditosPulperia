@@ -1,0 +1,185 @@
+@model IEnumerable<SistemaPulperia.Models.Entities.Cuenta>
+@{
+    ViewData["Title"] = "Gestión de Créditos";
+}
+
+<style>
+    /* Reutilizamos el estilo de encabezado de tabla que tanto te gustó */
+    table thead.thead-blue th {
+        background-color: #0a2161 !important; 
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        padding: 15px !important;
+        border-bottom: 3px solid #d4af37 !important;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .page-header {
+        background: var(--midnight);
+        color: white;
+        padding: 20px;
+        border-bottom: 3px solid var(--gold);
+        margin-top: 70px;
+    }
+
+    .table-container {
+        padding: 30px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        margin-top: 20px;
+    }
+
+    .badge-mora { background-color: #dc3545; color: white; }
+    .badge-activa { background-color: #198754; color: white; }
+</style>
+
+<div class="page-header d-flex justify-content-between align-items-center shadow">
+    <div>
+        <h2 class="fw-bold mb-0"><i class="bi bi-wallet2 me-2"></i> CONTROL DE CRÉDITOS</h2>
+        <small class="text-gold">Administración de Límites y Saldos</small>
+    </div>
+    <button class="btn btn-outline-light border-gold text-gold rounded-pill px-4 fw-bold" onclick="abrirModalApertura()">
+        <i class="bi bi-plus-circle me-1"></i> ABRIR NUEVA CUENTA
+    </button>
+</div>
+
+<div class="container-fluid">
+    <div class="table-container shadow-sm border-gold">
+        <table id="tblCuentas" class="table table-hover w-100 align-middle">
+            <thead class="thead-blue">
+                <tr>
+                    <th>Cliente</th>
+                    <th>Límite de Crédito</th>
+                    <th>Saldo Actual</th>
+                    <th>Vencimiento</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCuenta" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Apertura de Crédito</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formCuenta">
+                    <div class="mb-3">
+                        <label class="form-label">Seleccionar Cliente *</label>
+                        <select name="PersonaId" id="PersonaId" class="form-select rounded-pill" required>
+                            <option value="">Cargando clientes...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Monto Máximo de Crédito *</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-gold">C$</span>
+                            <input type="number" name="MontoMaximoCredito" class="form-control" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de Vencimiento *</label>
+                        <input type="date" name="FechaVencimiento" class="form-control rounded-pill" required>
+                    </div>
+                    <div class="text-end mt-4">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold">Activar Cuenta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        let tabla;
+        $(document).ready(function () {
+            tabla = $('#tblCuentas').DataTable({
+                ajax: { url: '/Cuentas/ListarCuentas', dataSrc: 'data' },
+                columns: [
+                    { data: 'nombreCliente' },
+                    { 
+                        data: 'montoMaximoCredito',
+                        render: $.fn.dataTable.render.number(',', '.', 2, 'C$ ')
+                    },
+                    { 
+                        data: 'saldoActual',
+                        render: function(data) {
+                            let color = data > 0 ? 'text-danger fw-bold' : 'text-success';
+                            return `<span class="${color}">C$ ${data.toFixed(2)}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'fechaVencimiento',
+                        render: function(data) { return data ? new Date(data).toLocaleDateString() : 'N/A'; }
+                    },
+                    { 
+                        data: 'enMora',
+                        render: function(data, type, row) {
+                            if (!row.estaActiva) return '<span class="badge bg-secondary">Cerrada</span>';
+                            return data ? '<span class="badge badge-mora">En Mora</span>' : '<span class="badge badge-activa">Al Día</span>';
+                        }
+                    },
+                    {
+                        data: 'id',
+                        render: function (data) {
+                            return `<div class="btn-group">
+                                <button class="btn btn-sm btn-dark text-gold" onclick="nuevaTransaccion(${data})" title="Nueva Compra/Pago"><i class="bi bi-plus-slash-minus"></i></button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="verHistorial(${data})" title="Ver Movimientos"><i class="bi bi-eye"></i></button>
+                            </div>`;
+                        }
+                    }
+                ],
+                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' }
+            });
+
+            // Lógica para cargar clientes en el select del modal
+            cargarClientes();
+        });
+
+        function cargarClientes() {
+            $.get('/Personas/ListarPersonas', function(res) {
+                let options = '<option value="">Seleccione un cliente...</option>';
+                res.data.forEach(p => {
+                    options += `<option value="${p.id}">${p.nombreCompleto}</option>`;
+                });
+                $('#PersonaId').html(options);
+            });
+        }
+
+        function abrirModalApertura() {
+            $('#formCuenta')[0].reset();
+            $('#modalCuenta').modal('show');
+        }
+
+        $('#formCuenta').on('submit', function (e) {
+            e.preventDefault();
+            Swal.fire({ title: 'Procesando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+            $.post('/Cuentas/AbrirCuenta', $(this).serialize(), function (res) {
+                Swal.close();
+                if (res.success) {
+                    Swal.fire('¡Éxito!', res.message, 'success');
+                    $('#modalCuenta').modal('hide');
+                    tabla.ajax.reload();
+                } else {
+                    Swal.fire('Atención', res.message, 'warning');
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,83 @@
+@using SistemaPulperia.Models.Entities
+@using SistemaPulperia.Web.Models.Entities
+@model IEnumerable<Menu>
+@{
+    ViewData["Title"] = "Asignación de Permisos";
+    var permisosActuales = ViewBag.PermisosActuales as List<int> ?? new List<int>();
+}
+
+<div class="page-header d-flex justify-content-between align-items-center shadow mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-white"><i class="bi bi-shield-check me-2"></i> PERMISOS DE ACCESO</h2>
+        <small class="text-gold">Nivel de Acceso: @ViewBag.RolNombre</small>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="table-container shadow-sm border-gold p-4">
+        <form id="formPermisos">
+            <input type="hidden" name="rolId" value="@ViewBag.RolId" />
+            
+            <div class="row"> @foreach (var menu in Model.Where(m => m.PadreId == null))
+                {
+                    <div class="col-md-4 mb-4" data-aos="fade-up">
+                        <div class="card h-100 shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+                            <div class="header-seccion px-3 py-2">
+                                <h6 class="mb-0 fw-bold"><i class="@menu.Icono me-2"></i> @menu.Nombre</h6>
+                            </div>
+                            <div class="card-body bg-white">
+                                @foreach (var sub in Model.Where(m => m.PadreId == menu.Id))
+                                {
+                                    <div class="form-check form-switch my-2"> <input class="form-check-input" type="checkbox" name="menusSeleccionados" 
+                                               value="@sub.Id" id="menu_@sub.Id" 
+                                               @(permisosActuales.Contains(sub.Id) ? "checked" : "")>
+                                        <label class="form-check-label fw-semibold" for="menu_@sub.Id">
+                                            @sub.Nombre
+                                        </label>
+                                    </div>
+                                }
+                                <input type="hidden" name="menusSeleccionados" value="@menu.Id" />
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="text-end mt-4 pt-3 border-top">
+                <a href="/Roles/Index" class="btn btn-secondary rounded-pill px-4 me-2">Cancelar</a>
+                <button type="button" onclick="guardarPermisos()" class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold shadow">
+                    <i class="bi bi-save2 me-1"></i> GUARDAR CAMBIOS
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function guardarPermisos() {
+        const data = $('#formPermisos').serialize();
+        
+        Swal.fire({
+            title: '¿Guardar cambios?',
+            text: "Se actualizarán los accesos para este nivel.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, actualizar',
+            customClass: {
+                confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-3 mx-2',
+                cancelButton: 'btn btn-secondary rounded-pill px-3'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('/Roles/GuardarPermisos', data, function (res) {
+                    if (res.success) {
+                        Swal.fire('¡Actualizado!', res.message, 'success');
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>

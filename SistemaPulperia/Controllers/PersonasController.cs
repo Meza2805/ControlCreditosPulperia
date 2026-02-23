@@ -45,49 +45,53 @@ namespace SistemaPulperia.Controllers
             return Json(persona);
         }
 
-[HttpPost]
-public async Task<IActionResult> Guardar(Persona persona)
-{
-    ModelState.Remove("Cuentas");
-
-    if (ModelState.IsValid)
-    {
-        try 
+        [HttpPost]
+        public async Task<IActionResult> Guardar(Persona persona)
         {
-            // Limpiar la cédula por si acaso (aunque ya lo hacemos en el JS)
-            string cedulaLimpia = persona.Cedula?.Replace("-", "") ?? "";
+            ModelState.Remove("Cuentas");
 
-            // VALIDACIÓN DE DUPLICADOS
-            // Buscamos si existe alguien con esa cédula que NO sea la persona actual
-            bool existe = await _context.Personas
-                .AnyAsync(p => p.Cedula == cedulaLimpia && p.Id != persona.Id);
-
-            if (existe)
+            if (ModelState.IsValid)
             {
-                return Json(new { 
-                    success = false, 
-                    message = $"La cédula {persona.Cedula} ya pertenece a otro cliente registrado." 
-                });
-            }
+                try
+                {
+                    // Limpiar la cédula por si acaso (aunque ya lo hacemos en el JS)
+                    string cedulaLimpia = persona.Cedula?.Replace("-", "") ?? "";
 
-            if (persona.Id == 0) {
-                persona.Cedula = cedulaLimpia;
-                _context.Personas.Add(persona);
-            } else {
-                persona.Cedula = cedulaLimpia;
-                _context.Update(persona);
-            }
+                    // VALIDACIÓN DE DUPLICADOS
+                    // Buscamos si existe alguien con esa cédula que NO sea la persona actual
+                    bool existe = await _context.Personas
+                        .AnyAsync(p => p.Cedula == cedulaLimpia && p.Id != persona.Id);
 
-            await _context.SaveChangesAsync();
-            return Json(new { success = true });
+                    if (existe)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = $"La cédula {persona.Cedula} ya pertenece a otro cliente registrado."
+                        });
+                    }
+
+                    if (persona.Id == 0)
+                    {
+                        persona.Cedula = cedulaLimpia;
+                        _context.Personas.Add(persona);
+                    }
+                    else
+                    {
+                        persona.Cedula = cedulaLimpia;
+                        _context.Update(persona);
+                    }
+
+                    await _context.SaveChangesAsync();
+                    return Json(new { success = true });
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = "Error de sistema: " + ex.Message });
+                }
+            }
+            return Json(new { success = false, message = "Verifique los datos del formulario." });
         }
-        catch (Exception ex) 
-        {
-            return Json(new { success = false, message = "Error de sistema: " + ex.Message });
-        }
-    }
-    return Json(new { success = false, message = "Verifique los datos del formulario." });
-}
         [HttpPost]
         public async Task<IActionResult> Eliminar(int id)
         {

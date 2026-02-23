@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaPulperia.Data;
 
@@ -11,9 +12,11 @@ using SistemaPulperia.Data;
 namespace SistemaPulperia.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260222221322_SistemaCreditos")]
+    partial class SistemaCreditos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -453,36 +456,6 @@ namespace SistemaPulperia.Migrations
                             Nombre = "Permisos de Menú",
                             Orden = 2,
                             PadreId = 70
-                        },
-                        new
-                        {
-                            Id = 80,
-                            Activo = true,
-                            Icono = "bi bi-wallet2",
-                            Nombre = "Gestión de Créditos",
-                            Orden = 5
-                        },
-                        new
-                        {
-                            Id = 81,
-                            Accion = "Index",
-                            Activo = true,
-                            Controlador = "Cuentas",
-                            Icono = "bi bi-person-badge",
-                            Nombre = "Cuentas de Clientes",
-                            Orden = 1,
-                            PadreId = 80
-                        },
-                        new
-                        {
-                            Id = 82,
-                            Accion = "Mora",
-                            Activo = true,
-                            Controlador = "Cuentas",
-                            Icono = "bi bi-exclamation-octagon-fill",
-                            Nombre = "Control de Mora",
-                            Orden = 2,
-                            PadreId = 80
                         });
                 });
 

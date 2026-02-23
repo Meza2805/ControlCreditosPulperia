@@ -1,0 +1,61 @@
+@using SistemaPulperia.Web.Models.Entities
+@model IEnumerable<NivelAcceso>
+
+@{
+    ViewData["Title"] = "Niveles de Acceso";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center shadow mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-white"><i class="bi bi-shield-lock-fill me-2"></i> NIVELES DE ACCESO</h2>
+        <small class="text-gold">Configuración de Roles y Seguridad</small>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="table-container shadow-sm border-gold p-4 bg-white" style="border-radius: 15px;">
+        <table class="table table-hover align-middle w-100">
+            <thead class="thead-blue">
+                <tr>
+                    <th style="width: 40%;">Nombre del Nivel</th>
+                    <th style="width: 40%;">ID de Seguridad</th>
+                    <th style="width: 20%;" class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rol in Model)
+                {
+                    <tr>
+                        <td class="fw-bold text-midnight">
+                            <span class="badge rounded-pill bg-dark text-gold px-3">@rol.Name</span>
+                        </td>
+                        <td><small class="text-muted font-monospace">@rol.Id</small></td>
+                        <td class="text-center">
+                            <a asp-action="PermisosMenus" asp-route-id="@rol.Id" 
+                               class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold shadow-sm">
+                                <i class="bi bi-list-check me-1"></i> Gestionar Permisos
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    /* Reutilizamos tu estilo de tablas para consistencia visual */
+    table thead.thead-blue th {
+        background-color: #0a2161 !important; 
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        padding: 15px !important;
+        border-bottom: 3px solid #d4af37 !important;
+        text-align: center;
+    }
+    
+    .text-midnight { color: #0a2161; }
+    .border-gold { border: 1px solid #d4af37 !important; }
+    .text-gold { color: #d4af37 !important; }
+</style>

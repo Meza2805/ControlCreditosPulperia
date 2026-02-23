@@ -20,9 +20,13 @@ namespace SistemaPulperia.Models.Entities
 
         public decimal SaldoActual { get; set; } = 0;
 
+        public DateTime FechaApertura { get; set; } = DateTime.Now;
         public DateTime? FechaVencimiento { get; set; }
 
+        public bool EstaActiva { get; set; } = true;
+        public bool EnMora => DateTime.Now > FechaVencimiento && SaldoActual > 0;
+
         // Relación 1 a muchos con Transacciones
-        public virtual ICollection<Transaccion> Transacciones { get; set; }
+        public virtual ICollection<Transaccion> Transacciones { get; set; } = new List<Transaccion>();
     }
 }
