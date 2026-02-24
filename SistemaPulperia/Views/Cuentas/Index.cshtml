@@ -6,7 +6,7 @@
 <style>
     /* Reutilizamos el estilo de encabezado de tabla que tanto te gustó */
     table thead.thead-blue th {
-        background-color: #0a2161 !important; 
+        background-color: #0a2161 !important;
         color: #ffffff !important;
         font-weight: 800 !important;
         text-transform: uppercase;
@@ -31,8 +31,15 @@
         margin-top: 20px;
     }
 
-    .badge-mora { background-color: #dc3545; color: white; }
-    .badge-activa { background-color: #198754; color: white; }
+    .badge-mora {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .badge-activa {
+        background-color: #198754;
+        color: white;
+    }
 </style>
 
 <div class="page-header d-flex justify-content-between align-items-center shadow">
@@ -40,7 +47,8 @@
         <h2 class="fw-bold mb-0"><i class="bi bi-wallet2 me-2"></i> CONTROL DE CRÉDITOS</h2>
         <small class="text-gold">Administración de Límites y Saldos</small>
     </div>
-    <button class="btn btn-outline-light border-gold text-gold rounded-pill px-4 fw-bold" onclick="abrirModalApertura()">
+    <button class="btn btn-outline-light border-gold text-gold rounded-pill px-4 fw-bold"
+            onclick="abrirModalApertura()">
         <i class="bi bi-plus-circle me-1"></i> ABRIR NUEVA CUENTA
     </button>
 </div>
@@ -90,8 +98,10 @@
                         <input type="date" name="FechaVencimiento" class="form-control rounded-pill" required>
                     </div>
                     <div class="text-end mt-4">
-                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold">Activar Cuenta</button>
+                        <button type="button" class="btn btn-secondary rounded-pill px-4"
+                                data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit"
+                                class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold">Activar Cuenta</button>
                     </div>
                 </form>
             </div>
@@ -99,6 +109,100 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalTransaccion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-gold">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-currency-exchange me-2"></i> Nueva Transacción</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formTransaccion">
+                    <input type="hidden" name="CuentaId" id="transaccion_CuentaId" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-midnight">Tipo de Movimiento</label>
+                        <select name="Tipo" id="tipoTransaccion" class="form-select rounded-pill border-gold" required>
+                            <option value="Credito">🛒 Compra al Crédito (Suma al saldo)</option>
+                            <option value="Abono">💰 Abono / Pago (Resta al saldo)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-midnight">Monto (C$)</label>
+                        <input type="number" name="Monto" class="form-control rounded-pill" step="0.01" min="0.01"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-midnight">Descripción / Nota</label>
+                        <textarea name="Descripcion" class="form-control" rows="2"
+                                  placeholder="Ej: Compra de granos básicos / Pago de quincena"></textarea>
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4"
+                                data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit"
+                                class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold shadow">
+                            Registrar Movimiento
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalHistorial" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-lg border-gold">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-clock-history me-2"></i> Historial de Movimientos: <span id="historial_cliente"
+                                                                                             class="text-gold"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle" id="tblHistorial">
+                        <thead class="bg-light">
+                            <tr class="text-midnight">
+                                <th>Fecha y Hora</th>
+                                <th>Tipo</th>
+                                <th>Descripción</th>
+                                <th>Monto</th>
+                                <th>Registrado por</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyHistorial">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer bg-light d-flex justify-content-between">
+                <div class="d-flex gap-3">
+                    <div class="text-center px-3 border-end">
+                        <small class="text-muted d-block text-uppercase">Total Créditos</small>
+                        <span id="total_creditos" class="fw-bold text-danger">C$ 0.00</span>
+                    </div>
+                    <div class="text-center px-3 border-end">
+                        <small class="text-muted d-block text-uppercase">Total Abonos</small>
+                        <span id="total_abonos" class="fw-bold text-success">C$ 0.00</span>
+                    </div>
+                    <div class="text-center px-3">
+                        <small class="text-dark d-block text-uppercase fw-bold">Saldo Pendiente</small>
+                        <span id="total_saldo" class="fw-bold text-midnight h5">C$ 0.00</span>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary rounded-pill px-4"
+                        data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
@@ -108,78 +212,171 @@
     <script>
         let tabla;
         $(document).ready(function () {
-            tabla = $('#tblCuentas').DataTable({
-                ajax: { url: '/Cuentas/ListarCuentas', dataSrc: 'data' },
-                columns: [
-                    { data: 'nombreCliente' },
-                    { 
-                        data: 'montoMaximoCredito',
-                        render: $.fn.dataTable.render.number(',', '.', 2, 'C$ ')
-                    },
-                    { 
-                        data: 'saldoActual',
-                        render: function(data) {
-                            let color = data > 0 ? 'text-danger fw-bold' : 'text-success';
-                            return `<span class="${color}">C$ ${data.toFixed(2)}</span>`;
-                        }
-                    },
-                    { 
-                        data: 'fechaVencimiento',
-                        render: function(data) { return data ? new Date(data).toLocaleDateString() : 'N/A'; }
-                    },
-                    { 
-                        data: 'enMora',
-                        render: function(data, type, row) {
-                            if (!row.estaActiva) return '<span class="badge bg-secondary">Cerrada</span>';
-                            return data ? '<span class="badge badge-mora">En Mora</span>' : '<span class="badge badge-activa">Al Día</span>';
-                        }
-                    },
-                    {
-                        data: 'id',
-                        render: function (data) {
-                            return `<div class="btn-group">
-                                <button class="btn btn-sm btn-dark text-gold" onclick="nuevaTransaccion(${data})" title="Nueva Compra/Pago"><i class="bi bi-plus-slash-minus"></i></button>
-                                <button class="btn btn-sm btn-outline-primary" onclick="verHistorial(${data})" title="Ver Movimientos"><i class="bi bi-eye"></i></button>
-                            </div>`;
-                        }
-                    }
-                ],
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' }
-            });
+        tabla = $('#tblCuentas').DataTable({
+        ajax: { url: '/Cuentas/ListarCuentas', dataSrc: 'data' },
+        columns: [
+        { data: 'nombreCliente' },
+        {
+        data: 'montoMaximoCredito',
+        render: $.fn.dataTable.render.number(',', '.', 2, 'C$ ')
+        },
+        {
+        data: 'saldoActual',
+        render: function (data) {
+        let color = data > 0 ? 'text-danger fw-bold' : 'text-success';
+        return `<span class="${color}">C$ ${data.toFixed(2)}</span>`;
+        }
+        },
+        {
+        data: 'fechaVencimiento',
+        render: function (data) { return data ? new Date(data).toLocaleDateString() : 'N/A'; }
+        },
+        {
+        data: 'enMora',
+        render: function (data, type, row) {
+        if (!row.estaActiva) return '<span class="badge bg-secondary">Cerrada</span>';
+        return data ? '<span class="badge badge-mora">En Mora</span>' : '<span class="badge badge-activa">Al Día</span>';
+        }
+        },
+        {
+        data: 'id',
+        render: function (data) {
+        return `<div class="btn-group">
+        <button class="btn btn-sm btn-dark text-gold" onclick="nuevaTransaccion(${data})" title="Nueva Compra/Pago"><i class="bi bi-plus-slash-minus"></i></button>
+        <button class="btn btn-sm btn-outline-primary" onclick="verHistorial(${data})" title="Ver Movimientos"><i class="bi bi-eye"></i></button>
+        </div>`;
+        }
+        }
+        ],
+        language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' }
+        });
 
-            // Lógica para cargar clientes en el select del modal
-            cargarClientes();
+        // Lógica para cargar clientes en el select del modal
+        cargarClientes();
         });
 
         function cargarClientes() {
-            $.get('/Personas/ListarPersonas', function(res) {
-                let options = '<option value="">Seleccione un cliente...</option>';
-                res.data.forEach(p => {
-                    options += `<option value="${p.id}">${p.nombreCompleto}</option>`;
-                });
-                $('#PersonaId').html(options);
-            });
+        $.get('/Personas/ListarPersonas', function (res) {
+        let options = '<option value="">Seleccione un cliente...</option>';
+        res.data.forEach(p => {
+        options += `<option value="${p.id}">${p.nombreCompleto}</option>`;
+        });
+        $('#PersonaId').html(options);
+        });
         }
 
         function abrirModalApertura() {
-            $('#formCuenta')[0].reset();
-            $('#modalCuenta').modal('show');
+        $('#formCuenta')[0].reset();
+        $('#modalCuenta').modal('show');
         }
 
         $('#formCuenta').on('submit', function (e) {
-            e.preventDefault();
-            Swal.fire({ title: 'Procesando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+        e.preventDefault();
+        Swal.fire({ title: 'Procesando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
-            $.post('/Cuentas/AbrirCuenta', $(this).serialize(), function (res) {
-                Swal.close();
-                if (res.success) {
-                    Swal.fire('¡Éxito!', res.message, 'success');
-                    $('#modalCuenta').modal('hide');
-                    tabla.ajax.reload();
-                } else {
-                    Swal.fire('Atención', res.message, 'warning');
-                }
-            });
+        $.post('/Cuentas/AbrirCuenta', $(this).serialize(), function (res) {
+        Swal.close();
+        if (res.success) {
+        Swal.fire('¡Éxito!', res.message, 'success');
+        $('#modalCuenta').modal('hide');
+        tabla.ajax.reload();
+        } else {
+        Swal.fire('Atención', res.message, 'warning');
+        }
         });
+        });
+
+
+        function nuevaTransaccion(id) {
+        $('#formTransaccion')[0].reset();
+        $('#transaccion_CuentaId').val(id);
+        $('#modalTransaccion').modal('show');
+        }
+
+        $('#formTransaccion').on('submit', function (e) {
+        e.preventDefault();
+        const data = $(this).serialize();
+
+        Swal.fire({
+        title: '¿Confirmar movimiento?',
+        text: "Esta acción actualizará el saldo del cliente inmediatamente.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, registrar',
+        customClass: {
+        confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-3 mx-2',
+        cancelButton: 'btn btn-secondary rounded-pill px-3'
+        },
+        buttonsStyling: false
+        }).then((result) => {
+        if (result.isConfirmed) {
+        $.post('/Cuentas/RegistrarTransaccion', data, function (res) {
+        if (res.success) {
+        Swal.fire('¡Éxito!', res.message, 'success');
+        $('#modalTransaccion').modal('hide');
+        tabla.ajax.reload(); // Recarga la tabla de cuentas para ver el nuevo saldo
+        } else {
+        Swal.fire('Error', res.message, 'error');
+        }
+        });
+        }
+        });
+        });
+
+        function verHistorial(id) {
+        // Limpiamos los totales antes de cargar
+        $('#total_creditos, #total_abonos, #total_saldo').text('C$ 0.00');
+        $('#tbodyHistorial').html('<tr><td colspan="5" class="text-center">Cargando movimientos...</td></tr>');
+        $('#modalHistorial').modal('show');
+
+        $.get('/Cuentas/ObtenerHistorial/' + id, function (res) {
+        let html = '';
+        let sumaCreditos = 0;
+        let sumaAbonos = 0;
+
+        if (res.data.length === 0) {
+        html = '<tr><td colspan="5" class="text-center text-muted p-4">No hay transacciones registradas aún.</td></tr>';
+        } else {
+        res.data.forEach(t => {
+        let badgeClass = t.tipo === "Credito" ? "badge bg-danger" : "badge bg-success";
+
+        // Sumar según el tipo para los totales inferiores
+        if (t.tipo === "Credito") {
+        sumaCreditos += t.monto;
+        } else {
+        sumaAbonos += t.monto;
+        }
+
+        html += `
+        <tr>
+        <td><small class="fw-bold text-midnight">${t.fecha}</small></td>
+        <td><span class="${badgeClass}">${t.tipo}</span></td>
+        <td><small class="text-muted">${t.descripcion}</small></td>
+        <td class="fw-bold text-end">C$ ${t.monto.toFixed(2)}</td>
+        <td><small><i class="bi bi-person-circle me-1"></i> ${t.registradoPor}</small></td>
+        </tr>
+        `;
+        });
+        }
+
+        // 1. Inyectar las filas en la tabla
+        $('#tbodyHistorial').html(html);
+
+        // 2. Calcular y mostrar los totales
+        let saldoFinal = sumaCreditos - sumaAbonos;
+        $('#total_creditos').text(`C$ ${sumaCreditos.toFixed(2)}`);
+        $('#total_abonos').text(`C$ ${sumaAbonos.toFixed(2)}`);
+        $('#total_saldo').text(`C$ ${saldoFinal.toFixed(2)}`);
+
+        // Si el saldo es 0, ponerlo en verde, si es mayor a 0 en rojo
+        if (saldoFinal > 0) {
+        $('#total_saldo').removeClass('text-success').addClass('text-danger');
+        } else {
+        $('#total_saldo').removeClass('text-danger').addClass('text-success');
+        }
+        });
+        }
+
+
     </script>
 }

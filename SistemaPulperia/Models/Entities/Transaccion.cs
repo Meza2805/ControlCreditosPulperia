@@ -28,5 +28,8 @@ namespace SistemaPulperia.Models.Entities
         // Trazabilidad: Quién registró el movimiento (Admin)
         [Required]
         public string UsuarioId { get; set; }
+
+        [ForeignKey("UsuarioId")]
+        public virtual ApplicationUser Usuario { get; set; }
     }
 }
