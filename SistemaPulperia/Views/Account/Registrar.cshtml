@@ -1,0 +1,96 @@
+@{
+    ViewData["Title"] = "Nuevo Usuario";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center shadow mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-white"><i class="bi bi-person-plus-fill me-2"></i> REGISTRO DE USUARIOS</h2>
+        <small class="text-gold">Asignación de credenciales y niveles de acceso</small>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="table-container shadow border-gold p-4 bg-white" style="border-radius: 20px;">
+                <form id="formRegistro">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre Completo</label>
+                        <input type="text" name="nombre" class="form-control rounded-pill" placeholder="Ej: Ramón Pérez" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Nombre de Usuario</label>
+                            <input type="text" name="username" class="form-control rounded-pill" placeholder="Rperez" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Nivel de Acceso</label>
+                            <select name="rol" class="form-select rounded-pill border-gold" required>
+                                <option value="">-- Seleccione --</option>
+                                @foreach (var rol in (List<SelectListItem>)ViewBag.Roles)
+                                {
+                                    <option value="@rol.Value">@rol.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Correo Electrónico</label>
+                        <input type="email" name="email" class="form-control rounded-pill" placeholder="usuario@pulperia.com" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Contraseña Temporal</label>
+                        <div class="input-group">
+                            <input type="password" id="pass" name="password" class="form-control border-end-0 rounded-start-pill" required>
+                            <button type="button" class="btn btn-outline-secondary border-start-0 rounded-end-pill" onclick="togglePass()">
+                                <i class="bi bi-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">Mínimo 6 caracteres.</small>
+                    </div>
+
+                    <div class="text-end">
+                        <a href="/Account/Index" class="btn btn-secondary rounded-pill px-4 me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold shadow">
+                            <i class="bi bi-save me-1"></i> CREAR USUARIO
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePass() {
+            const passInput = document.getElementById('pass');
+            const icon = document.getElementById('eyeIcon');
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                passInput.type = "password";
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+
+        $('#formRegistro').on('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({ title: 'Creando cuenta...', didOpen: () => { Swal.showLoading(); } });
+
+            $.post('/Account/Registrar', $(this).serialize(), function(res) {
+                if (res.success) {
+                    Swal.fire('¡Éxito!', res.message, 'success').then(() => {
+                        window.location.href = '/Account/Index';
+                    });
+                } else {
+                    Swal.fire('Error', res.message, 'error');
+                }
+            });
+        });
+    </script>
+}

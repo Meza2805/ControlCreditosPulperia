@@ -146,7 +146,41 @@ namespace SistemaPulperia.Controllers
 
             return Json(new { data = historial });
         }
+        // Agrega estos métodos a tu AccountController existente
 
+        [HttpGet]
+        public async Task<IActionResult> ListarUsuarios()
+        {
+            var usuarios = await _userManager.Users.ToListAsync();
+            var listaUsuariosViewModel = new List<object>();
+
+            foreach (var user in usuarios)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                listaUsuariosViewModel.Add(new
+                {
+                    id = user.Id,
+                    nombreCompleto = user.NombreCompleto,
+                    userName = user.UserName,
+                    email = user.Email,
+                    rol = roles.FirstOrDefault() ?? "Sin Rol",
+                    bloqueado = user.LockoutEnd > DateTime.Now,
+                    fechaRegistro = user.FechaRegistro.ToString("dd/MM/yyyy")
+                });
+            }
+
+            return Json(new { data = listaUsuariosViewModel });
+        }
+
+        // Métodos Placeholder para las acciones (Sin lógica aún, pero listos para las rutas)
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(string id) => Json(new { success = true, message = "Acción pendiente de implementación." });
+
+        [HttpPost]
+        public async Task<IActionResult> BloquearUsuario(string id) => Json(new { success = true, message = "Acción pendiente de implementación." });
+
+        [HttpPost]
+        public async Task<IActionResult> EliminarUsuario(string id) => Json(new { success = true, message = "Acción pendiente de implementación." });
 
     }
 }

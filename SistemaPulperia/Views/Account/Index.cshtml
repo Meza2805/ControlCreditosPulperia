@@ -1,0 +1,179 @@
+@model IEnumerable<SistemaPulperia.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "Lista de Usuarios";
+}
+
+<style>
+    /* Estilo coherente con el módulo de Créditos */
+    table thead.thead-blue th {
+        background-color: #0a2161 !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        padding: 15px !important;
+        border-bottom: 3px solid #d4af37 !important;
+        text-align: center;
+    }
+    .btn-action { width: 35px; height: 35px; padding: 0; line-height: 35px; border-radius: 50%; }
+</style>
+
+<div class="page-header d-flex justify-content-between align-items-center shadow mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-white"><i class="bi bi-person-lines-fill me-2"></i> LISTA DE USUARIOS</h2>
+        <small class="text-gold">Personal administrativo y de ventas</small>
+    </div>
+    <a asp-action="Registrar" class="btn btn-outline-light border-gold text-gold rounded-pill px-4 fw-bold">
+        <i class="bi bi-person-plus-fill me-1"></i> NUEVO USUARIO
+    </a>
+</div>
+
+<div class="container-fluid">
+    <div class="table-container shadow-sm border-gold bg-white p-4" style="border-radius: 15px;">
+        <table id="tblUsuarios" class="table table-hover w-100 align-middle">
+            <thead class="thead-blue">
+                <tr>
+                    <th>Nombre Completo</th>
+                    <th>Usuario</th>
+                    <th>Correo</th>
+                    <th>Nivel de Acceso</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        let tabla;
+        $(document).ready(function () {
+            tabla = $('#tblUsuarios').DataTable({
+                ajax: { url: '/Account/ListarUsuarios', dataSrc: 'data' },
+                columns: [
+                    { data: 'nombreCompleto' },
+                    { data: 'userName' },
+                    { data: 'email' },
+                    { 
+                        data: 'rol',
+                        render: function(data) {
+                            let clase = data === 'Administrador' ? 'bg-dark text-gold border border-gold' : 'bg-light text-dark';
+                            return `<span class="badge ${clase} px-3 rounded-pill">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'bloqueado',
+                        render: function(data) {
+                            return data ? '<span class="badge bg-danger">Bloqueado</span>' : '<span class="badge bg-success">Activo</span>';
+                        }
+                    },
+                    {
+                        data: 'id',
+                        render: function (data, type, row) {
+                            return `
+                                <div class="d-flex gap-1 justify-content-center">
+                                    <button class="btn btn-sm btn-outline-primary btn-action" title="Editar" onclick="editar('${data}')"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-warning btn-action" title="Reset Clave" onclick="resetPass('${data}')"><i class="bi bi-key"></i></button>
+                                    <button class="btn btn-sm btn-outline-secondary btn-action" title="${row.bloqueado ? 'Desbloquear' : 'Bloquear'}" onclick="bloquear('${data}')">
+                                        <i class="bi ${row.bloqueado ? 'bi-unlock' : 'bi-lock'}"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger btn-action" title="Eliminar" onclick="eliminar('${data}')"><i class="bi bi-trash"></i></button>
+                                </div>`;
+                        }
+                    }
+                ],
+                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' }
+            });
+        });
+
+        // Funciones Placeholder
+       // Función para Resetear Contraseña a una genérica
+function resetPass(id) {
+    Swal.fire({
+        title: '¿Restablecer contraseña?',
+        text: "La nueva clave será: Pulperia2026*",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cambiar',
+        customClass: {
+            confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-3 mx-2',
+            cancelButton: 'btn btn-secondary rounded-pill px-3'
+        },
+        buttonsStyling: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Account/ResetPassword', { id: id }, function (res) {
+                if (res.success) {
+                    Swal.fire('¡Listo!', res.message, 'success');
+                } else {
+                    Swal.fire('Error', res.message, 'error');
+                }
+            });
+        }
+    });
+}
+
+// Función para Bloquear / Desbloquear Usuario
+function bloquear(id) {
+    Swal.fire({
+        title: '¿Cambiar estado de acceso?',
+        text: "Se modificará la capacidad del usuario para iniciar sesión.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, proceder',
+        customClass: {
+            confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-3 mx-2',
+            cancelButton: 'btn btn-secondary rounded-pill px-3'
+        },
+        buttonsStyling: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Account/ToggleBloqueo', { id: id }, function (res) {
+                if (res.success) {
+                    Swal.fire('Actualizado', res.message, 'success');
+                    tabla.ajax.reload(); // Recarga el DataTable para ver el cambio de badge
+                }
+            });
+        }
+    });
+}
+
+// Función para Eliminar Usuario
+function eliminar(id) {
+    Swal.fire({
+        title: '¿Eliminar permanentemente?',
+        text: "Esta acción no se puede deshacer y borrará al usuario del sistema.",
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        customClass: {
+            confirmButton: 'btn btn-danger rounded-pill px-3 mx-2',
+            cancelButton: 'btn btn-secondary rounded-pill px-3'
+        },
+        buttonsStyling: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Account/EliminarUsuario', { id: id }, function (res) {
+                if (res.success) {
+                    Swal.fire('Eliminado', res.message, 'success');
+                    tabla.ajax.reload();
+                } else {
+                    Swal.fire('Error', res.message, 'error');
+                }
+            });
+        }
+    });
+}
+
+// Función para Editar (Abre el formulario de registro en modo edición)
+function editar(id) {
+    // Por ahora redirigimos, en el futuro podemos hacerlo en modal
+    window.location.href = '/Account/Editar/' + id;
+}
+    </script>
+}
