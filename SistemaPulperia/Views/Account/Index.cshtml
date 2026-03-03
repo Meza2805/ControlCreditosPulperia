@@ -14,7 +14,75 @@
         border-bottom: 3px solid #d4af37 !important;
         text-align: center;
     }
-    .btn-action { width: 35px; height: 35px; padding: 0; line-height: 35px; border-radius: 50%; }
+    
+    /* --- ESTILOS PARA LOS BOTONES DE ACCIÓN (Según tu imagen) --- */
+    .action-buttons-container {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-action-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+        border: 1.5px solid transparent;
+        transition: all 0.3s ease;
+        padding: 0;
+    }
+
+    .btn-action-circle i {
+        font-size: 1.1rem;
+    }
+
+    /* Botón Editar (Azul) */
+    .btn-edit-circle {
+        border-color: #0d6efd;
+        color: #0d6efd;
+    }
+    .btn-edit-circle:hover {
+        background-color: #0d6efd;
+        color: white;
+        box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
+    }
+
+    /* Botón Reset (Dorado/Amarillo) */
+    .btn-key-circle {
+        border-color: #ffc107;
+        color: #ffc107;
+    }
+    .btn-key-circle:hover {
+        background-color: #ffc107;
+        color: white;
+        box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+    }
+
+    /* Botón Bloquear (Gris) */
+    .btn-lock-circle {
+        border-color: #6c757d;
+        color: #6c757d;
+    }
+    .btn-lock-circle:hover {
+        background-color: #6c757d;
+        color: white;
+        box-shadow: 0 0 8px rgba(108, 117, 125, 0.4);
+    }
+
+    /* Botón Eliminar (Rojo) */
+    .btn-delete-circle {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+    .btn-delete-circle:hover {
+        background-color: #dc3545;
+        color: white;
+        box-shadow: 0 0 8px rgba(220, 53, 69, 0.4);
+    }
 </style>
 
 <div class="page-header d-flex justify-content-between align-items-center shadow mb-4">
@@ -45,14 +113,62 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-gold shadow">
+            <div class="modal-header" style="background-color: #0a2161; border-bottom: 3px solid #d4af37;">
+                <h5 class="modal-title text-white fw-bold"><i class="bi bi-pencil-square text-gold me-2"></i> Editar Usuario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarUsuario">
+                    <input type="hidden" id="editUsuarioId" name="id" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark">Nombre Completo</label>
+                        <input type="text" class="form-control" id="editNombre" name="nombre" required />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark">Nivel de Acceso (Rol)</label>
+                        <select class="form-select" id="editRol" name="rol" required>
+                            <option value="">Seleccione un rol...</option>
+                            @if(ViewBag.Roles != null)
+                            {
+                                foreach(var rol in ViewBag.Roles)
+                                {
+                                    <option value="@rol.Value">@rol.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold" onclick="guardarEdicion()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
     <script>
         let tabla;
+        let modalEditarObj; // Variable para manejar el modal de edición
+
         $(document).ready(function () {
+            // Inicializar el modal
+            modalEditarObj = new bootstrap.Modal(document.getElementById('modalEditar'));
+
+            // Inicializar DataTable
             tabla = $('#tblUsuarios').DataTable({
                 ajax: { url: '/Account/ListarUsuarios', dataSrc: 'data' },
                 columns: [
@@ -76,13 +192,22 @@
                         data: 'id',
                         render: function (data, type, row) {
                             return `
-                                <div class="d-flex gap-1 justify-content-center">
-                                    <button class="btn btn-sm btn-outline-primary btn-action" title="Editar" onclick="editar('${data}')"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-sm btn-outline-warning btn-action" title="Reset Clave" onclick="resetPass('${data}')"><i class="bi bi-key"></i></button>
-                                    <button class="btn btn-sm btn-outline-secondary btn-action" title="${row.bloqueado ? 'Desbloquear' : 'Bloquear'}" onclick="bloquear('${data}')">
+                                <div class="action-buttons-container">
+                                    <button class="btn btn-action-circle btn-edit-circle" title="Editar" onclick="editar('${data}')">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    
+                                    <button class="btn btn-action-circle btn-key-circle" title="Reset Clave" onclick="resetPass('${data}')">
+                                        <i class="bi bi-key"></i>
+                                    </button>
+                                    
+                                    <button class="btn btn-action-circle btn-lock-circle" title="${row.bloqueado ? 'Desbloquear' : 'Bloquear'}" onclick="bloquear('${data}')">
                                         <i class="bi ${row.bloqueado ? 'bi-unlock' : 'bi-lock'}"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger btn-action" title="Eliminar" onclick="eliminar('${data}')"><i class="bi bi-trash"></i></button>
+                                    
+                                    <button class="btn btn-action-circle btn-delete-circle" title="Eliminar" onclick="eliminar('${data}')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </div>`;
                         }
                     }
@@ -91,89 +216,131 @@
             });
         });
 
-        // Funciones Placeholder
-       // Función para Resetear Contraseña a una genérica
-function resetPass(id) {
-    Swal.fire({
-        title: '¿Restablecer contraseña?',
-        text: "La nueva clave será: Pulperia2026*",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, cambiar',
-        customClass: {
-            confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-3 mx-2',
-            cancelButton: 'btn btn-secondary rounded-pill px-3'
-        },
-        buttonsStyling: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.post('/Account/ResetPassword', { id: id }, function (res) {
+        // ----------------- FUNCIONES DE ACCIÓN -----------------
+
+        // 1. Cargar datos y abrir modal de Edición
+        function editar(id) {
+            Swal.fire({ title: 'Cargando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+
+            $.get('/Account/ObtenerUsuario', { id: id }, function (res) {
+                Swal.close();
                 if (res.success) {
-                    Swal.fire('¡Listo!', res.message, 'success');
+                    $('#editUsuarioId').val(res.data.id);
+                    $('#editNombre').val(res.data.nombreCompleto);
+                    $('#editEmail').val(res.data.email);
+                    $('#editRol').val(res.data.rol);
+                    
+                    modalEditarObj.show();
                 } else {
                     Swal.fire('Error', res.message, 'error');
                 }
+            }).fail(function() {
+                Swal.close();
+                Swal.fire('Error', 'Hubo un problema de conexión al servidor.', 'error');
             });
         }
-    });
-}
 
-// Función para Bloquear / Desbloquear Usuario
-function bloquear(id) {
-    Swal.fire({
-        title: '¿Cambiar estado de acceso?',
-        text: "Se modificará la capacidad del usuario para iniciar sesión.",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, proceder',
-        customClass: {
-            confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-3 mx-2',
-            cancelButton: 'btn btn-secondary rounded-pill px-3'
-        },
-        buttonsStyling: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.post('/Account/ToggleBloqueo', { id: id }, function (res) {
-                if (res.success) {
-                    Swal.fire('Actualizado', res.message, 'success');
-                    tabla.ajax.reload(); // Recarga el DataTable para ver el cambio de badge
-                }
-            });
-        }
-    });
-}
+        // 2. Guardar los cambios del modal
+        function guardarEdicion() {
+            const form = document.getElementById('formEditarUsuario');
+            if(!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
 
-// Función para Eliminar Usuario
-function eliminar(id) {
-    Swal.fire({
-        title: '¿Eliminar permanentemente?',
-        text: "Esta acción no se puede deshacer y borrará al usuario del sistema.",
-        icon: 'error',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar',
-        customClass: {
-            confirmButton: 'btn btn-danger rounded-pill px-3 mx-2',
-            cancelButton: 'btn btn-secondary rounded-pill px-3'
-        },
-        buttonsStyling: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.post('/Account/EliminarUsuario', { id: id }, function (res) {
+            const data = $('#formEditarUsuario').serialize();
+
+            $.post('/Account/Editar', data, function (res) {
                 if (res.success) {
-                    Swal.fire('Eliminado', res.message, 'success');
-                    tabla.ajax.reload();
+                    modalEditarObj.hide();
+                    Swal.fire('¡Actualizado!', res.message, 'success');
+                    tabla.ajax.reload(null, false); // false evita que se pierda la paginación actual
                 } else {
                     Swal.fire('Error', res.message, 'error');
                 }
+            }).fail(function() {
+                Swal.fire('Error', 'Hubo un problema al procesar la solicitud.', 'error');
             });
         }
-    });
-}
 
-// Función para Editar (Abre el formulario de registro en modo edición)
-function editar(id) {
-    // Por ahora redirigimos, en el futuro podemos hacerlo en modal
-    window.location.href = '/Account/Editar/' + id;
-}
+        // 3. Resetear Contraseña
+        function resetPass(id) {
+            Swal.fire({
+                title: '¿Restablecer contraseña?',
+                text: "La nueva clave será: Pulperia2026*",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, cambiar',
+                customClass: {
+                    confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-3 mx-2',
+                    cancelButton: 'btn btn-secondary rounded-pill px-3'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Account/ResetPassword', { id: id }, function (res) {
+                        if (res.success) {
+                            Swal.fire('¡Listo!', res.message, 'success');
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // 4. Bloquear / Desbloquear Usuario
+        function bloquear(id) {
+            Swal.fire({
+                title: '¿Cambiar estado de acceso?',
+                text: "Se modificará la capacidad del usuario para iniciar sesión.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, proceder',
+                customClass: {
+                    confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-3 mx-2',
+                    cancelButton: 'btn btn-secondary rounded-pill px-3'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Account/ToggleBloqueo', { id: id }, function (res) {
+                        if (res.success) {
+                            Swal.fire('Actualizado', res.message, 'success');
+                            tabla.ajax.reload(null, false); 
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // 5. Eliminar Usuario
+        function eliminar(id) {
+            Swal.fire({
+                title: '¿Eliminar permanentemente?',
+                text: "Esta acción no se puede deshacer y borrará al usuario del sistema.",
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                customClass: {
+                    confirmButton: 'btn btn-danger rounded-pill px-3 mx-2',
+                    cancelButton: 'btn btn-secondary rounded-pill px-3'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Account/EliminarUsuario', { id: id }, function (res) {
+                        if (res.success) {
+                            Swal.fire('Eliminado', res.message, 'success');
+                            tabla.ajax.reload(null, false);
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
     </script>
 }
