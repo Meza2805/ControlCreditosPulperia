@@ -20,6 +20,7 @@ namespace SistemaPulperia.Data
         public DbSet<Transaccion> Transacciones { get; set; }
         public DbSet<Menu> Menus { get; set; }
         public DbSet<RolMenu> RolMenus { get; set; }
+        public DbSet<HistorialContrasena> HistorialContrasenas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -83,7 +84,7 @@ namespace SistemaPulperia.Data
             // 2. Submenús de Usuarios
             modelBuilder.Entity<Menu>().HasData(
                 new Menu { Id = 61, PadreId = 60, Nombre = "Nuevo Usuario", Controlador = "Account", Accion = "Registrar", Icono = "bi bi-person-plus", Orden = 1, Activo = true },
-                new Menu { Id = 62, PadreId = 60, Nombre = "Restablecer Contraseña", Controlador = "Account", Accion = "ResetPassword", Icono = "bi bi-key-fill", Orden = 2, Activo = true },
+                // new Menu { Id = 62, PadreId = 60, Nombre = "Restablecer Contraseña", Controlador = "Account", Accion = "ResetPassword", Icono = "bi bi-key-fill", Orden = 2, Activo = true },
                 new Menu { Id = 63, PadreId = 60, Nombre = "Lista de Usuarios", Controlador = "Account", Accion = "Index", Icono = "bi bi-person-lines-fill", Orden = 3, Activo = true }
             );
 

@@ -4,7 +4,7 @@
 }
 
 <style>
-    /* Estilo coherente con el módulo de Créditos */
+    /* Estilos de encabezado y botones circulares */
     table thead.thead-blue th {
         background-color: #0a2161 !important;
         color: #ffffff !important;
@@ -15,74 +15,26 @@
         text-align: center;
     }
     
-    /* --- ESTILOS PARA LOS BOTONES DE ACCIÓN (Según tu imagen) --- */
-    .action-buttons-container {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        align-items: center;
-    }
+    .action-buttons-container { display: flex; gap: 10px; justify-content: center; align-items: center; }
 
     .btn-action-circle {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: transparent;
-        border: 1.5px solid transparent;
-        transition: all 0.3s ease;
-        padding: 0;
+        width: 38px; height: 38px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background-color: transparent; border: 1.5px solid transparent; transition: all 0.3s ease;
     }
 
-    .btn-action-circle i {
-        font-size: 1.1rem;
-    }
+    .btn-edit-circle { border-color: #0d6efd; color: #0d6efd; }
+    .btn-edit-circle:hover { background-color: #0d6efd; color: white; }
+    .btn-key-circle { border-color: #ffc107; color: #ffc107; }
+    .btn-key-circle:hover { background-color: #ffc107; color: white; }
+    .btn-lock-circle { border-color: #6c757d; color: #6c757d; }
+    .btn-lock-circle:hover { background-color: #6c757d; color: white; }
+    .btn-delete-circle { border-color: #dc3545; color: #dc3545; }
+    .btn-delete-circle:hover { background-color: #dc3545; color: white; }
 
-    /* Botón Editar (Azul) */
-    .btn-edit-circle {
-        border-color: #0d6efd;
-        color: #0d6efd;
-    }
-    .btn-edit-circle:hover {
-        background-color: #0d6efd;
-        color: white;
-        box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
-    }
-
-    /* Botón Reset (Dorado/Amarillo) */
-    .btn-key-circle {
-        border-color: #ffc107;
-        color: #ffc107;
-    }
-    .btn-key-circle:hover {
-        background-color: #ffc107;
-        color: white;
-        box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
-    }
-
-    /* Botón Bloquear (Gris) */
-    .btn-lock-circle {
-        border-color: #6c757d;
-        color: #6c757d;
-    }
-    .btn-lock-circle:hover {
-        background-color: #6c757d;
-        color: white;
-        box-shadow: 0 0 8px rgba(108, 117, 125, 0.4);
-    }
-
-    /* Botón Eliminar (Rojo) */
-    .btn-delete-circle {
-        border-color: #dc3545;
-        color: #dc3545;
-    }
-    .btn-delete-circle:hover {
-        background-color: #dc3545;
-        color: white;
-        box-shadow: 0 0 8px rgba(220, 53, 69, 0.4);
-    }
+    .requirement { font-size: 0.85rem; transition: all 0.3s ease; }
+    .requirement.valid { color: #198754; text-decoration: line-through; opacity: 0.6; }
+    .requirement.invalid { color: #dc3545; }
 </style>
 
 <div class="page-header d-flex justify-content-between align-items-center shadow mb-4">
@@ -97,7 +49,7 @@
 
 <div class="container-fluid">
     <div class="table-container shadow-sm border-gold bg-white p-4" style="border-radius: 15px;">
-        <table id="tblUsuarios" class="table table-hover w-100 align-middle">
+        <table id="tblUsuarios" class="table table-hover w-100 align-middle text-center">
             <thead class="thead-blue">
                 <tr>
                     <th>Nombre Completo</th>
@@ -113,62 +65,53 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+<div class="modal fade" id="modalResetPass" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-gold shadow">
-            <div class="modal-header" style="background-color: #0a2161; border-bottom: 3px solid #d4af37;">
-                <h5 class="modal-title text-white fw-bold"><i class="bi bi-pencil-square text-gold me-2"></i> Editar Usuario</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-dark" style="border-bottom: 3px solid #d4af37;">
+                <h5 class="modal-title text-white fw-bold"><i class="bi bi-shield-lock text-gold me-2"></i> Nueva Contraseña</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <form id="formEditarUsuario">
-                    <input type="hidden" id="editUsuarioId" name="id" />
-                    
+            <div class="modal-body p-4">
+                <form id="formResetPass">
+                    <input type="hidden" name="id" id="resetUsuarioId" />
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-dark">Nombre Completo</label>
-                        <input type="text" class="form-control" id="editNombre" name="nombre" required />
+                        <label class="form-label fw-bold">Insertar Nueva Clave</label>
+                        <div class="input-group">
+                            <input type="password" id="new_pass" name="newPassword" class="form-control border-gold rounded-start-pill" required>
+                            <button type="button" class="btn btn-outline-secondary border-gold rounded-end-pill" onclick="togglePassReset()">
+                                <i class="bi bi-eye" id="eyeIconReset"></i>
+                            </button>
+                        </div>
+                        <div id="reset-requirements" class="mt-3 p-3 bg-light rounded small border">
+                            <h6 class="fw-bold mb-2 small text-uppercase text-muted">Requisitos:</h6>
+                            <div id="r-length" class="requirement invalid mb-1"><i class="bi bi-circle me-2"></i>8+ caracteres</div>
+                            <div id="r-upper" class="requirement invalid mb-1"><i class="bi bi-circle me-2"></i>Una mayúscula</div>
+                            <div id="r-special" class="requirement invalid mb-1"><i class="bi bi-circle me-2"></i>Un carácter especial</div>
+                        </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-dark">Correo Electrónico</label>
-                        <input type="email" class="form-control" id="editEmail" name="email" required />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-dark">Nivel de Acceso (Rol)</label>
-                        <select class="form-select" id="editRol" name="rol" required>
-                            <option value="">Seleccione un rol...</option>
-                            @if(ViewBag.Roles != null)
-                            {
-                                foreach(var rol in ViewBag.Roles)
-                                {
-                                    <option value="@rol.Value">@rol.Text</option>
-                                }
-                            }
-                        </select>
+                    <div class="text-end mt-4">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="btnConfirmReset" class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold shadow" disabled>Actualizar Clave</button>
                     </div>
                 </form>
-            </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold" onclick="guardarEdicion()">Guardar Cambios</button>
             </div>
         </div>
     </div>
 </div>
+
 @section Scripts {
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    
     <script>
         let tabla;
-        let modalEditarObj; // Variable para manejar el modal de edición
+        let modalResetObj;
 
         $(document).ready(function () {
-            // Inicializar el modal
-            modalEditarObj = new bootstrap.Modal(document.getElementById('modalEditar'));
+            modalResetObj = new bootstrap.Modal(document.getElementById('modalResetPass'));
 
-            // Inicializar DataTable
             tabla = $('#tblUsuarios').DataTable({
                 ajax: { url: '/Account/ListarUsuarios', dataSrc: 'data' },
                 columns: [
@@ -193,21 +136,12 @@
                         render: function (data, type, row) {
                             return `
                                 <div class="action-buttons-container">
-                                    <button class="btn btn-action-circle btn-edit-circle" title="Editar" onclick="editar('${data}')">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    
-                                    <button class="btn btn-action-circle btn-key-circle" title="Reset Clave" onclick="resetPass('${data}')">
-                                        <i class="bi bi-key"></i>
-                                    </button>
-                                    
+                                    <button class="btn btn-action-circle btn-edit-circle" title="Editar" onclick="editar('${data}')"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-action-circle btn-key-circle" title="Reset Clave" onclick="resetPass('${data}')"><i class="bi bi-key"></i></button>
                                     <button class="btn btn-action-circle btn-lock-circle" title="${row.bloqueado ? 'Desbloquear' : 'Bloquear'}" onclick="bloquear('${data}')">
                                         <i class="bi ${row.bloqueado ? 'bi-unlock' : 'bi-lock'}"></i>
                                     </button>
-                                    
-                                    <button class="btn btn-action-circle btn-delete-circle" title="Eliminar" onclick="eliminar('${data}')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    <button class="btn btn-action-circle btn-delete-circle" title="Eliminar" onclick="eliminar('${data}')"><i class="bi bi-trash"></i></button>
                                 </div>`;
                         }
                     }
@@ -216,131 +150,89 @@
             });
         });
 
-        // ----------------- FUNCIONES DE ACCIÓN -----------------
-
-        // 1. Cargar datos y abrir modal de Edición
-        function editar(id) {
-            Swal.fire({ title: 'Cargando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-
-            $.get('/Account/ObtenerUsuario', { id: id }, function (res) {
-                Swal.close();
-                if (res.success) {
-                    $('#editUsuarioId').val(res.data.id);
-                    $('#editNombre').val(res.data.nombreCompleto);
-                    $('#editEmail').val(res.data.email);
-                    $('#editRol').val(res.data.rol);
-                    
-                    modalEditarObj.show();
-                } else {
-                    Swal.fire('Error', res.message, 'error');
-                }
-            }).fail(function() {
-                Swal.close();
-                Swal.fire('Error', 'Hubo un problema de conexión al servidor.', 'error');
-            });
-        }
-
-        // 2. Guardar los cambios del modal
-        function guardarEdicion() {
-            const form = document.getElementById('formEditarUsuario');
-            if(!form.checkValidity()) {
-                form.reportValidity();
-                return;
+        // CORRECCIÓN: Función unificada para actualizar los requisitos visuales
+        function updateRequirement(id, isValid) {
+            const el = $(id);
+            if(isValid) {
+                el.removeClass('invalid text-danger').addClass('valid text-success opacity-60')
+                  .find('i').removeClass('bi-circle').addClass('bi-check-circle-fill');
+            } else {
+                el.removeClass('valid text-success opacity-60').addClass('invalid text-danger')
+                  .find('i').removeClass('bi-check-circle-fill').addClass('bi-circle');
             }
-
-            const data = $('#formEditarUsuario').serialize();
-
-            $.post('/Account/Editar', data, function (res) {
-                if (res.success) {
-                    modalEditarObj.hide();
-                    Swal.fire('¡Actualizado!', res.message, 'success');
-                    tabla.ajax.reload(null, false); // false evita que se pierda la paginación actual
-                } else {
-                    Swal.fire('Error', res.message, 'error');
-                }
-            }).fail(function() {
-                Swal.fire('Error', 'Hubo un problema al procesar la solicitud.', 'error');
-            });
         }
 
-        // 3. Resetear Contraseña
         function resetPass(id) {
-            Swal.fire({
-                title: '¿Restablecer contraseña?',
-                text: "La nueva clave será: Pulperia2026*",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, cambiar',
-                customClass: {
-                    confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-3 mx-2',
-                    cancelButton: 'btn btn-secondary rounded-pill px-3'
-                },
-                buttonsStyling: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.post('/Account/ResetPassword', { id: id }, function (res) {
-                        if (res.success) {
-                            Swal.fire('¡Listo!', res.message, 'success');
-                        } else {
-                            Swal.fire('Error', res.message, 'error');
-                        }
-                    });
-                }
-            });
+            $('#formResetPass')[0].reset();
+            $('#resetUsuarioId').val(id);
+            $('#btnConfirmReset').prop('disabled', true);
+            
+            // Reiniciar visualmente
+            $('.requirement').removeClass('valid text-success opacity-60').addClass('invalid text-danger')
+                             .find('i').removeClass('bi-check-circle-fill').addClass('bi-circle');
+            
+            modalResetObj.show();
         }
 
-        // 4. Bloquear / Desbloquear Usuario
+        $('#new_pass').on('input', function() {
+            const val = $(this).val();
+            const rules = {
+                length: val.length >= 8,
+                upper: /[A-Z]/.test(val),
+                special: /[@@$!%*?&]/.test(val)
+            };
+            updateRequirement('#r-length', rules.length);
+            updateRequirement('#r-upper', rules.upper);
+            updateRequirement('#r-special', rules.special);
+            $('#btnConfirmReset').prop('disabled', !Object.values(rules).every(Boolean));
+        });
+
+        $('#formResetPass').on('submit', function(e) {
+            e.preventDefault();
+            $.post('/Account/ResetPassword', $(this).serialize(), function(res) {
+                if (res.success) {
+                    Swal.fire('¡Éxito!', res.message, 'success');
+                    modalResetObj.hide();
+                    tabla.ajax.reload(null, false);
+                } else {
+                    Swal.fire('Seguridad', res.message, 'warning');
+                }
+            });
+        });
+
         function bloquear(id) {
-            Swal.fire({
-                title: '¿Cambiar estado de acceso?',
-                text: "Se modificará la capacidad del usuario para iniciar sesión.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, proceder',
-                customClass: {
-                    confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-3 mx-2',
-                    cancelButton: 'btn btn-secondary rounded-pill px-3'
-                },
-                buttonsStyling: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.post('/Account/ToggleBloqueo', { id: id }, function (res) {
-                        if (res.success) {
-                            Swal.fire('Actualizado', res.message, 'success');
-                            tabla.ajax.reload(null, false); 
-                        } else {
-                            Swal.fire('Error', res.message, 'error');
-                        }
-                    });
+            $.post('/Account/ToggleBloqueo', { id: id }, function (res) {
+                if (res.success) {
+                    Swal.fire('Actualizado', res.message, 'success');
+                    tabla.ajax.reload(null, false);
                 }
             });
         }
 
-        // 5. Eliminar Usuario
         function eliminar(id) {
             Swal.fire({
-                title: '¿Eliminar permanentemente?',
-                text: "Esta acción no se puede deshacer y borrará al usuario del sistema.",
+                title: '¿Eliminar usuario?',
+                text: "Esta acción no se puede deshacer.",
                 icon: 'error',
                 showCancelButton: true,
-                confirmButtonText: 'Sí, eliminar',
-                customClass: {
-                    confirmButton: 'btn btn-danger rounded-pill px-3 mx-2',
-                    cancelButton: 'btn btn-secondary rounded-pill px-3'
-                },
-                buttonsStyling: false
+                confirmButtonText: 'Sí, eliminar'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.post('/Account/EliminarUsuario', { id: id }, function (res) {
                         if (res.success) {
                             Swal.fire('Eliminado', res.message, 'success');
                             tabla.ajax.reload(null, false);
-                        } else {
-                            Swal.fire('Error', res.message, 'error');
                         }
                     });
                 }
             });
+        }
+
+        function togglePassReset() {
+            const input = document.getElementById('new_pass');
+            const icon = document.getElementById('eyeIconReset');
+            input.type = input.type === "password" ? "text" : "password";
+            icon.classList.toggle('bi-eye'); icon.classList.toggle('bi-eye-slash');
         }
     </script>
 }

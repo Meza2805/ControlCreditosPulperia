@@ -2,30 +2,38 @@
     ViewData["Title"] = "Nuevo Usuario";
 }
 
+<style>
+    .requirement { font-size: 0.85rem; transition: all 0.3s ease; }
+    .requirement.valid { color: #198754; text-decoration: line-through; opacity: 0.6; }
+    .requirement.invalid { color: #dc3545; }
+    .validation-msg { font-size: 0.8rem; display: block; margin-top: 4px; }
+</style>
+
 <div class="page-header d-flex justify-content-between align-items-center shadow mb-4">
     <div>
         <h2 class="fw-bold mb-0 text-white"><i class="bi bi-person-plus-fill me-2"></i> REGISTRO DE USUARIOS</h2>
-        <small class="text-gold">Asignación de credenciales y niveles de acceso</small>
+        <small class="text-gold">Seguridad y validación en tiempo real</small>
     </div>
 </div>
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-7">
             <div class="table-container shadow border-gold p-4 bg-white" style="border-radius: 20px;">
-                <form id="formRegistro">
+                <form id="formRegistro" novalidate>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nombre Completo</label>
-                        <input type="text" name="nombre" class="form-control rounded-pill" placeholder="Ej: Ramón Pérez" required>
+                        <label class="form-label fw-bold text-midnight">Nombre Completo</label>
+                        <input type="text" name="nombre" class="form-control rounded-pill border-gold" placeholder="Ej: Ramón Pérez" required>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Nombre de Usuario</label>
-                            <input type="text" name="username" class="form-control rounded-pill" placeholder="Rperez" required>
+                            <label class="form-label fw-bold text-midnight">Nombre de Usuario</label>
+                            <input type="text" id="username" name="username" class="form-control rounded-pill border-gold" placeholder="Rperez" required>
+                            <span id="user-val" class="validation-msg"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Nivel de Acceso</label>
+                            <label class="form-label fw-bold text-midnight">Nivel de Acceso</label>
                             <select name="rol" class="form-select rounded-pill border-gold" required>
                                 <option value="">-- Seleccione --</option>
                                 @foreach (var rol in (List<SelectListItem>)ViewBag.Roles)
@@ -37,24 +45,33 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Correo Electrónico</label>
-                        <input type="email" name="email" class="form-control rounded-pill" placeholder="usuario@pulperia.com" required>
+                        <label class="form-label fw-bold text-midnight">Correo Electrónico</label>
+                        <input type="email" id="email" name="email" class="form-control rounded-pill border-gold" placeholder="usuario@pulperia.com" required>
+                        <span id="email-val" class="validation-msg"></span>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Contraseña Temporal</label>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-midnight">Contraseña Temporal</label>
                         <div class="input-group">
-                            <input type="password" id="pass" name="password" class="form-control border-end-0 rounded-start-pill" required>
-                            <button type="button" class="btn btn-outline-secondary border-start-0 rounded-end-pill" onclick="togglePass()">
+                            <input type="password" id="pass" name="password" class="form-control border-end-0 rounded-start-pill border-gold" required>
+                            <button type="button" class="btn btn-outline-secondary border-start-0 rounded-end-pill border-gold" onclick="togglePass()">
                                 <i class="bi bi-eye" id="eyeIcon"></i>
                             </button>
                         </div>
-                        <small class="text-muted">Mínimo 6 caracteres.</small>
+                        
+                        <div id="password-requirements" class="mt-3 p-3 bg-light rounded shadow-sm border">
+                            <h6 class="fw-bold mb-2 small text-uppercase text-muted">La contraseña debe tener:</h6>
+                            <div id="req-length" class="requirement invalid"><i class="bi bi-circle me-2"></i>Al menos 8 caracteres</div>
+                            <div id="req-upper" class="requirement invalid"><i class="bi bi-circle me-2"></i>Una letra mayúscula</div>
+                            <div id="req-lower" class="requirement invalid"><i class="bi bi-circle me-2"></i>Una letra minúscula</div>
+                            <div id="req-number" class="requirement invalid"><i class="bi bi-circle me-2"></i>Al menos un número</div>
+                            <div id="req-special" class="requirement invalid"><i class="bi bi-circle me-2"></i>Un carácter especial (@@$!%*?&)</div>
+                        </div>
                     </div>
 
-                    <div class="text-end">
+                    <div class="text-end pt-3">
                         <a href="/Account/Index" class="btn btn-secondary rounded-pill px-4 me-2">Cancelar</a>
-                        <button type="submit" class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold shadow">
+                        <button type="submit" id="btnGuardar" class="btn btn-dark border-gold text-gold rounded-pill px-5 fw-bold shadow" disabled>
                             <i class="bi bi-save me-1"></i> CREAR USUARIO
                         </button>
                     </div>
@@ -66,6 +83,10 @@
 
 @section Scripts {
     <script>
+        let isUserValid = false;
+        let isEmailValid = false;
+        let isPassStrong = false;
+
         function togglePass() {
             const passInput = document.getElementById('pass');
             const icon = document.getElementById('eyeIcon');
@@ -76,6 +97,76 @@
                 passInput.type = "password";
                 icon.classList.replace('bi-eye-slash', 'bi-eye');
             }
+        }
+
+        // VALIDACIÓN DE CONTRASEÑA EN TIEMPO REAL
+        $('#pass').on('input', function() {
+            const val = $(this).val();
+            const rules = {
+                length: val.length >= 8,
+                upper: /[A-Z]/.test(val),
+                lower: /[a-z]/.test(val),
+                number: /[0-9]/.test(val),
+                special: /[@@$!%*?&]/.test(val)
+            };
+
+            updateReq('#req-length', rules.length);
+            updateReq('#req-upper', rules.upper);
+            updateReq('#req-lower', rules.lower);
+            updateReq('#req-number', rules.number);
+            updateReq('#req-special', rules.special);
+
+            isPassStrong = Object.values(rules).every(Boolean);
+            validarFormulario();
+        });
+
+        function updateReq(id, isValid) {
+            const el = $(id);
+            if(isValid) {
+                el.removeClass('invalid text-danger').addClass('valid text-success')
+                  .find('i').removeClass('bi-circle').addClass('bi-check-circle-fill');
+            } else {
+                el.removeClass('valid text-success').addClass('invalid text-danger')
+                  .find('i').removeClass('bi-check-circle-fill').addClass('bi-circle');
+            }
+        }
+
+        // VALIDACIÓN DE DISPONIBILIDAD (EVENTOS LEAVE)
+        $('#username').on('blur', function() {
+            const username = $(this).val();
+            if(username.length < 3) return;
+            
+            $.get('/Account/ValidarDisponibilidad', { campo: 'username', valor: username }, function(res) {
+                const msg = $('#user-val');
+                isUserValid = res.disponible;
+                if(res.disponible) {
+                    msg.text('✓ Disponible').removeClass('text-danger').addClass('text-success');
+                } else {
+                    msg.text('✗ Este nombre de usuario ya existe').removeClass('text-success').addClass('text-danger');
+                }
+                validarFormulario();
+            });
+        });
+
+        $('#email').on('blur', function() {
+            const email = $(this).val();
+            if(!email.includes('@@')) return;
+
+            $.get('/Account/ValidarDisponibilidad', { campo: 'email', valor: email }, function(res) {
+                const msg = $('#email-val');
+                isEmailValid = res.disponible;
+                if(res.disponible) {
+                    msg.text('✓ Correo disponible').removeClass('text-danger').addClass('text-success');
+                } else {
+                    msg.text('✗ Este correo ya está registrado').removeClass('text-success').addClass('text-danger');
+                }
+                validarFormulario();
+            });
+        });
+
+        function validarFormulario() {
+            const formFilled = $('#formRegistro')[0].checkValidity();
+            $('#btnGuardar').prop('disabled', !(formFilled && isPassStrong && isUserValid && isEmailValid));
         }
 
         $('#formRegistro').on('submit', function(e) {

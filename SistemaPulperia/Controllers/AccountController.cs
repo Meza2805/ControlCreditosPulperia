@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SistemaPulperia.Data;
 using SistemaPulperia.Models;
 using SistemaPulperia.Models.Entities; // Ajusta si tu ApplicationUser está aquí
 using SistemaPulperia.Web.Models.Entities; // Ajusta si tu NivelAcceso está aquí
@@ -18,15 +19,18 @@ namespace SistemaPulperia.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<NivelAcceso> _roleManager;
+        private readonly ApplicationDbContext _context;
 
         public AccountController(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
-            RoleManager<NivelAcceso> roleManager)
+            RoleManager<NivelAcceso> roleManager,
+            ApplicationDbContext context)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _roleManager = roleManager;
+            _context = context;
         }
 
         #region VISTAS DE AUTENTICACIÓN (LOGIN/LOGOUT)
@@ -174,10 +178,12 @@ namespace SistemaPulperia.Controllers
             if (user == null) return Json(new { success = false, message = "Usuario no encontrado." });
 
             var roles = await _userManager.GetRolesAsync(user);
-            
-            return Json(new { 
-                success = true, 
-                data = new {
+
+            return Json(new
+            {
+                success = true,
+                data = new
+                {
                     id = user.Id,
                     nombreCompleto = user.NombreCompleto,
                     email = user.Email,
@@ -234,7 +240,7 @@ namespace SistemaPulperia.Controllers
 
             return Json(new { success = false, message = "Error al restablecer clave." });
         }
-        
+
         // 4. Bloquear / Desbloquear Usuario
         [HttpPost]
         public async Task<IActionResult> ToggleBloqueo(string id)
@@ -275,6 +281,75 @@ namespace SistemaPulperia.Controllers
                 return Json(new { success = true, message = "Usuario eliminado del sistema." });
 
             return Json(new { success = false, message = "No se pudo eliminar el usuario." });
+        }
+        [HttpGet]
+        public async Task<IActionResult> ValidarDisponibilidad(string campo, string valor)
+        {
+            bool existe = false;
+            if (campo == "username")
+            {
+                existe = await _userManager.FindByNameAsync(valor) != null;
+            }
+            else if (campo == "email")
+            {
+                existe = await _userManager.FindByEmailAsync(valor) != null;
+            }
+
+            return Json(new { disponible = !existe });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(string id, string newPassword)
+        {
+            var usuario = await _userManager.FindByIdAsync(id);
+            if (usuario == null) return Json(new { success = false, message = "Usuario no encontrado." });
+
+            // 1. OBTENER EL HISTORIAL (Últimas 5 contraseñas, por ejemplo)
+            var historial = await _context.HistorialContrasenas
+                .Where(h => h.UsuarioId == id)
+                .OrderByDescending(h => h.FechaRegistro)
+                .Take(5)
+                .ToListAsync();
+
+            var hasher = _userManager.PasswordHasher;
+
+            // 2. COMPARAR LA NUEVA CLAVE CONTRA EL HISTORIAL
+            foreach (var registro in historial)
+            {
+                // PasswordVerificationResult.Success significa que la clave coincide con un hash viejo
+                var resultadoComparacion = hasher.VerifyHashedPassword(usuario, registro.PasswordHash, newPassword);
+
+                if (resultadoComparacion == PasswordVerificationResult.Success)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "¡Seguridad! No puedes usar una contraseña que hayas utilizado recientemente."
+                    });
+                }
+            }
+
+            // 3. SI TODO ESTÁ BIEN, PROCEDEMOS AL RESET
+            var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
+            var resultadoReset = await _userManager.ResetPasswordAsync(usuario, token, newPassword);
+
+            if (resultadoReset.Succeeded)
+            {
+                // 4. GUARDAMOS LA NUEVA CLAVE EN EL HISTORIAL
+                var nuevoRegistro = new HistorialContrasena
+                {
+                    UsuarioId = id,
+                    PasswordHash = hasher.HashPassword(usuario, newPassword),
+                    FechaRegistro = DateTime.Now
+                };
+
+                _context.HistorialContrasenas.Add(nuevoRegistro);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Contraseña actualizada y registrada en el historial." });
+            }
+
+            return Json(new { success = false, message = "Error al actualizar." });
         }
 
         #endregion

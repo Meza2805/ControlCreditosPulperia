@@ -17,19 +17,27 @@ var connectionString = builder.Configuration.GetConnectionString("ConexionRemota
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// 2. CONFIGURACIÓN DE IDENTITY CON NIVELACCESO (REPARADO)
+// 2. CONFIGURACIÓN DE IDENTITY CON NIVELACCESO (REPARADO Y BLINDADO)
 builder.Services.AddIdentity<ApplicationUser, NivelAcceso>(options => {
-    // Bloqueo de cuenta
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15); // Se bloquea por 15 min
-    options.Lockout.MaxFailedAccessAttempts = 3; // MÁXIMO 3 INTENTOS
+    
+    // --- Bloqueo de cuenta (Security Lockout) ---
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15); 
+    options.Lockout.MaxFailedAccessAttempts = 3; // Bloqueo automático al 3er intento fallido
     options.Lockout.AllowedForNewUsers = true;
 
-    options.SignIn.RequireConfirmedAccount = false; // Cambiado a false para que puedas entrar ya
-    options.Password.RequireDigit = false;
-    options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireLowercase = false;
+    // --- Configuración de Contraseñas (Alineada con tu validación JS) ---
+    options.Password.RequireDigit = true;            // Requiere al menos un número
+    options.Password.RequiredLength = 8;            // Mínimo 8 caracteres (antes tenías 6)
+    options.Password.RequireNonAlphanumeric = true; // Requiere carácter especial (@@$!%*?&)
+    options.Password.RequireUppercase = true;       // Requiere una mayúscula
+    options.Password.RequireLowercase = true;       // Requiere una minúscula
+    options.Password.RequiredUniqueChars = 1;       // Al menos un carácter único
+
+    // --- Configuración de Inicio de Sesión ---
+    options.SignIn.RequireConfirmedAccount = false; 
+    
+    // --- Configuración de Usuario ---
+    options.User.RequireUniqueEmail = true;         // No permite dos usuarios con el mismo correo
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
