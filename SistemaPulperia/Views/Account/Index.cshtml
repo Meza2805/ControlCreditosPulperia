@@ -101,10 +101,11 @@
 </div>
 
 @section Scripts {
+   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    
     <script>
         let tabla;
         let modalResetObj;
@@ -112,45 +113,53 @@
         $(document).ready(function () {
             modalResetObj = new bootstrap.Modal(document.getElementById('modalResetPass'));
 
-            tabla = $('#tblUsuarios').DataTable({
-                ajax: { url: '/Account/ListarUsuarios', dataSrc: 'data' },
-                columns: [
-                    { data: 'nombreCompleto' },
-                    { data: 'userName' },
-                    { data: 'email' },
-                    { 
-                        data: 'rol',
-                        render: function(data) {
-                            let clase = data === 'Administrador' ? 'bg-dark text-gold border border-gold' : 'bg-light text-dark';
-                            return `<span class="badge ${clase} px-3 rounded-pill">${data}</span>`;
-                        }
-                    },
-                    { 
-                        data: 'bloqueado',
-                        render: function(data) {
-                            return data ? '<span class="badge bg-danger">Bloqueado</span>' : '<span class="badge bg-success">Activo</span>';
-                        }
-                    },
-                    {
-                        data: 'id',
-                        render: function (data, type, row) {
-                            return `
-                                <div class="action-buttons-container">
-                                    <button class="btn btn-action-circle btn-edit-circle" title="Editar" onclick="editar('${data}')"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-action-circle btn-key-circle" title="Reset Clave" onclick="resetPass('${data}')"><i class="bi bi-key"></i></button>
-                                    <button class="btn btn-action-circle btn-lock-circle" title="${row.bloqueado ? 'Desbloquear' : 'Bloquear'}" onclick="bloquear('${data}')">
-                                        <i class="bi ${row.bloqueado ? 'bi-unlock' : 'bi-lock'}"></i>
-                                    </button>
-                                    <button class="btn btn-action-circle btn-delete-circle" title="Eliminar" onclick="eliminar('${data}')"><i class="bi bi-trash"></i></button>
-                                </div>`;
-                        }
-                    }
-                ],
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' }
-            });
+      tabla = $('#tblUsuarios').DataTable({
+    "ajax": { 
+        "url": "/Account/ListarUsuarios", 
+        "type": "GET",
+        "dataSrc": "data" 
+    },
+    "columns": [
+        { "data": "nombreCompleto" },
+        { "data": "userName" }, // Asegúrate que la 'N' sea mayúscula como en el controlador
+        { "data": "email" },
+        { 
+            "data": "rol",
+            "render": function(data) {
+                // Ajuste para que reconozca tus roles específicos (Admin o Creador)
+                let clase = (data === 'Admin' || data === 'Creador') 
+                    ? 'bg-dark text-gold border border-gold' 
+                    : 'bg-light text-dark';
+                return `<span class="badge ${clase} px-3 rounded-pill">${data}</span>`;
+            }
+        },
+        { 
+            "data": "bloqueado",
+            "render": function(data) {
+                // El controlador devuelve un booleano (true/false)
+                return data ? '<span class="badge bg-danger px-3 rounded-pill">Bloqueado</span>' 
+                            : '<span class="badge bg-success px-3 rounded-pill">Activo</span>';
+            }
+        },
+        {
+            "data": "id",
+            "render": function (data, type, row) {
+                return `
+                    <div class="action-buttons-container">
+                        <button class="btn btn-action-circle btn-edit-circle" title="Editar" onclick="editar('${data}')"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-action-circle btn-key-circle" title="Reset Clave" onclick="resetPass('${data}')"><i class="bi bi-key"></i></button>
+                        <button class="btn btn-action-circle btn-lock-circle" title="${row.bloqueado ? 'Desbloquear' : 'Bloquear'}" onclick="bloquear('${data}')">
+                            <i class="bi ${row.bloqueado ? 'bi-unlock' : 'bi-lock'}"></i>
+                        </button>
+                        <button class="btn btn-action-circle btn-delete-circle" title="Eliminar" onclick="eliminar('${data}')"><i class="bi bi-trash"></i></button>
+                    </div>`;
+            }
+        }
+    ],
+    "language": { "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" }
+});
         });
 
-        // CORRECCIÓN: Función unificada para actualizar los requisitos visuales
         function updateRequirement(id, isValid) {
             const el = $(id);
             if(isValid) {
@@ -162,18 +171,25 @@
             }
         }
 
-        function resetPass(id) {
-            $('#formResetPass')[0].reset();
-            $('#resetUsuarioId').val(id);
-            $('#btnConfirmReset').prop('disabled', true);
-            
-            // Reiniciar visualmente
-            $('.requirement').removeClass('valid text-success opacity-60').addClass('invalid text-danger')
-                             .find('i').removeClass('bi-check-circle-fill').addClass('bi-circle');
-            
-            modalResetObj.show();
+        // --- ACCIONES ---
+
+        function editar(id) {
+            // Redirige a la vista de edición o abre tu modal de edición si lo tienes implementado
+            window.location.href = '/Account/Editar/' + id;
         }
 
+    function resetPass(id) {
+    $('#formResetPass')[0].reset();
+    $('#resetUsuarioId').val(id);
+    $('#btnConfirmReset').prop('disabled', true);
+    
+    // Cambia 'updateReqVisuals' por 'updateRequirement' para que coincida con tu código
+    updateRequirement('#r-length', false);
+    updateRequirement('#r-upper', false);
+    updateRequirement('#r-special', false);
+    
+    modalResetObj.show();
+}
         $('#new_pass').on('input', function() {
             const val = $(this).val();
             const rules = {
@@ -189,7 +205,9 @@
 
         $('#formResetPass').on('submit', function(e) {
             e.preventDefault();
+            Swal.fire({ title: 'Validando...', didOpen: () => { Swal.showLoading(); } });
             $.post('/Account/ResetPassword', $(this).serialize(), function(res) {
+                Swal.close();
                 if (res.success) {
                     Swal.fire('¡Éxito!', res.message, 'success');
                     modalResetObj.hide();

@@ -36,22 +36,21 @@ namespace SistemaPulperia.Data.Inicializador
             if (await _roleManager.RoleExistsAsync("Admin")) return;
 
             // 3. Crear roles usando tu clase personalizada NivelAcceso
-            await _roleManager.CreateAsync(new NivelAcceso
+            // Antes tenías: new NivelAcceso { Name = "Admin" ... }
+            // Cámbialo a:
+            await _roleManager.CreateAsync(new NivelAcceso("Admin")
             {
-                Name = "Admin",
                 NormalizedName = "ADMIN",
                 Activo = true,
                 Descripcion = "Administrador total del sistema"
             });
 
-            await _roleManager.CreateAsync(new NivelAcceso
+            await _roleManager.CreateAsync(new NivelAcceso("Cliente")
             {
-                Name = "Cliente",
                 NormalizedName = "CLIENTE",
                 Activo = true,
                 Descripcion = "Acceso para clientes de la pulpería"
             });
-
             // 4. Crear usuario administrador inicial (Marvin Rafael Meza Pineda)
             var adminUser = new ApplicationUser
             {

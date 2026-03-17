@@ -227,19 +227,61 @@ namespace SistemaPulperia.Controllers
 
         // 3. Resetear Contraseña
         [HttpPost]
-        public async Task<IActionResult> ResetPassword(string id)
+        public async Task<IActionResult> ResetPassword(string id, string newPassword)
         {
+            // 1. Verificación de existencia
             var usuario = await _userManager.FindByIdAsync(id);
             if (usuario == null) return Json(new { success = false, message = "Usuario no encontrado." });
 
+            // 2. OBTENER EL HISTORIAL (Últimas 5 contraseñas)
+            var historial = await _context.HistorialContrasenas
+                .Where(h => h.UsuarioId == id)
+                .OrderByDescending(h => h.FechaRegistro)
+                .Take(5)
+                .ToListAsync();
+
+            var hasher = _userManager.PasswordHasher;
+
+            // 3. COMPARAR CONTRA EL HISTORIAL (Seguridad Avanzada)
+            foreach (var registro in historial)
+            {
+                var resultadoComparacion = hasher.VerifyHashedPassword(usuario, registro.PasswordHash, newPassword);
+
+                if (resultadoComparacion == PasswordVerificationResult.Success)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "¡Política de Seguridad! No puedes usar una contraseña que hayas utilizado recientemente."
+                    });
+                }
+            }
+
+            // 4. EJECUTAR EL CAMBIO
             var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
-            var resultado = await _userManager.ResetPasswordAsync(usuario, token, "Pulperia2026*");
+            var resultadoReset = await _userManager.ResetPasswordAsync(usuario, token, newPassword);
 
-            if (resultado.Succeeded)
-                return Json(new { success = true, message = "Clave restablecida a: Pulperia2026*" });
+            if (resultadoReset.Succeeded)
+            {
+                // 5. REGISTRAR EN EL HISTORIAL EL NUEVO HASH
+                var nuevoRegistro = new HistorialContrasena
+                {
+                    UsuarioId = id,
+                    PasswordHash = hasher.HashPassword(usuario, newPassword),
+                    FechaRegistro = DateTime.Now
+                };
 
-            return Json(new { success = false, message = "Error al restablecer clave." });
+                _context.HistorialContrasenas.Add(nuevoRegistro);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Contraseña actualizada exitosamente." });
+            }
+
+            // Si Identity rechaza la clave por falta de mayúsculas/números (Program.cs)
+            var errorMsg = resultadoReset.Errors.FirstOrDefault()?.Description ?? "Error al actualizar.";
+            return Json(new { success = false, message = errorMsg });
         }
+
 
         // 4. Bloquear / Desbloquear Usuario
         [HttpPost]
@@ -298,59 +340,6 @@ namespace SistemaPulperia.Controllers
             return Json(new { disponible = !existe });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ResetPassword(string id, string newPassword)
-        {
-            var usuario = await _userManager.FindByIdAsync(id);
-            if (usuario == null) return Json(new { success = false, message = "Usuario no encontrado." });
-
-            // 1. OBTENER EL HISTORIAL (Últimas 5 contraseñas, por ejemplo)
-            var historial = await _context.HistorialContrasenas
-                .Where(h => h.UsuarioId == id)
-                .OrderByDescending(h => h.FechaRegistro)
-                .Take(5)
-                .ToListAsync();
-
-            var hasher = _userManager.PasswordHasher;
-
-            // 2. COMPARAR LA NUEVA CLAVE CONTRA EL HISTORIAL
-            foreach (var registro in historial)
-            {
-                // PasswordVerificationResult.Success significa que la clave coincide con un hash viejo
-                var resultadoComparacion = hasher.VerifyHashedPassword(usuario, registro.PasswordHash, newPassword);
-
-                if (resultadoComparacion == PasswordVerificationResult.Success)
-                {
-                    return Json(new
-                    {
-                        success = false,
-                        message = "¡Seguridad! No puedes usar una contraseña que hayas utilizado recientemente."
-                    });
-                }
-            }
-
-            // 3. SI TODO ESTÁ BIEN, PROCEDEMOS AL RESET
-            var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
-            var resultadoReset = await _userManager.ResetPasswordAsync(usuario, token, newPassword);
-
-            if (resultadoReset.Succeeded)
-            {
-                // 4. GUARDAMOS LA NUEVA CLAVE EN EL HISTORIAL
-                var nuevoRegistro = new HistorialContrasena
-                {
-                    UsuarioId = id,
-                    PasswordHash = hasher.HashPassword(usuario, newPassword),
-                    FechaRegistro = DateTime.Now
-                };
-
-                _context.HistorialContrasenas.Add(nuevoRegistro);
-                await _context.SaveChangesAsync();
-
-                return Json(new { success = true, message = "Contraseña actualizada y registrada en el historial." });
-            }
-
-            return Json(new { success = false, message = "Error al actualizar." });
-        }
 
         #endregion
     }

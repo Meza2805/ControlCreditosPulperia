@@ -8,8 +8,8 @@ using SistemaPulperia.Web.Models.Entities;
 
 namespace SistemaPulperia.Controllers
 {
-    [Authorize(Roles = "Admin")]
-    
+   
+    [Authorize(Roles = "Admin,Creador")]
     public class RolesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -44,7 +44,7 @@ namespace SistemaPulperia.Controllers
                 .ToListAsync();
 
             ViewBag.PermisosActuales = permisosActuales;
-           return View(todosLosMenus);
+            return View(todosLosMenus);
         }
 
         [HttpPost]
@@ -66,6 +66,44 @@ namespace SistemaPulperia.Controllers
             await _context.SaveChangesAsync();
             return Json(new { success = true, message = "Accesos actualizados correctamente." });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Crear(string nombre)
+        {
+            if (string.IsNullOrEmpty(nombre)) return Json(new { success = false, message = "El nombre es obligatorio." });
+
+            var resultado = await _roleManager.CreateAsync(new NivelAcceso(nombre));
+            if (resultado.Succeeded) return Json(new { success = true, message = "Rol creado exitosamente." });
+
+            return Json(new { success = false, message = "Error: " + resultado.Errors.FirstOrDefault()?.Description });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Editar(string id, string nuevoNombre)
+        {
+            var rol = await _roleManager.FindByIdAsync(id);
+            if (rol == null) return Json(new { success = false, message = "Rol no encontrado." });
+
+            rol.Name = nuevoNombre;
+            var resultado = await _roleManager.UpdateAsync(rol);
+            if (resultado.Succeeded) return Json(new { success = true, message = "Nombre actualizado correctamente." });
+
+            return Json(new { success = false, message = "No se pudo actualizar." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Eliminar(string id)
+        {
+            var rol = await _roleManager.FindByIdAsync(id);
+            if (rol == null) return Json(new { success = false, message = "Rol no encontrado." });
+
+            // Validar si el rol tiene usuarios antes de borrar (opcional pero recomendado)
+            var resultado = await _roleManager.DeleteAsync(rol);
+            if (resultado.Succeeded) return Json(new { success = true, message = "Rol eliminado." });
+
+            return Json(new { success = false, message = "El rol no se puede eliminar (posiblemente tiene usuarios asignados)." });
+        }
     }
+
 
 }

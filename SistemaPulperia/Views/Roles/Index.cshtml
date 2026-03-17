@@ -2,14 +2,45 @@
 @model IEnumerable<NivelAcceso>
 
 @{
-    ViewData["Title"] = "Niveles de Acceso";
+    ViewData["Title"] = "Administrar Niveles de Acceso";
 }
+
+<style>
+    /* Estilo de encabezado azul medianoche con borde dorado */
+    .table thead.thead-blue th {
+        background-color: #0a2161 !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        padding: 15px !important;
+        border-bottom: 3px solid #d4af37 !important;
+        text-align: center;
+    }
+
+    .btn-action-circle {
+        width: 38px; height: 38px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background-color: transparent; border: 1.5px solid transparent; transition: all 0.3s ease;
+    }
+    
+    .btn-edit-circle { border-color: #0d6efd; color: #0d6efd; }
+    .btn-edit-circle:hover { background-color: #0d6efd; color: white; }
+    
+    .btn-permisos-circle { border-color: #ffc107; color: #ffc107; }
+    .btn-permisos-circle:hover { background-color: #ffc107; color: white; }
+
+    .btn-delete-circle { border-color: #dc3545; color: #dc3545; }
+    .btn-delete-circle:hover { background-color: #dc3545; color: white; }
+</style>
 
 <div class="page-header d-flex justify-content-between align-items-center shadow mb-4">
     <div>
-        <h2 class="fw-bold mb-0 text-white"><i class="bi bi-shield-lock-fill me-2"></i> NIVELES DE ACCESO</h2>
-        <small class="text-gold">Configuración de Roles y Seguridad</small>
+        <h2 class="fw-bold mb-0 text-white"><i class="bi bi-shield-lock-fill me-2"></i> ADMINISTRAR ROLES</h2>
+        <small class="text-gold">Gestión de Niveles de Acceso del Sistema</small>
     </div>
+    <button class="btn btn-outline-light border-gold text-gold rounded-pill px-4 fw-bold" onclick="abrirModalCrear()">
+        <i class="bi bi-plus-circle-fill me-1"></i> NUEVO ROL
+    </button>
 </div>
 
 <div class="container-fluid">
@@ -17,24 +48,36 @@
         <table class="table table-hover align-middle w-100">
             <thead class="thead-blue">
                 <tr>
-                    <th style="width: 40%;">Nombre del Nivel</th>
-                    <th style="width: 40%;">ID de Seguridad</th>
-                    <th style="width: 20%;" class="text-center">Acciones</th>
+                    <th style="width: 70%; text-align: left;">Nombre del Nivel de Acceso</th>
+                    <th style="width: 30%;">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var rol in Model)
                 {
                     <tr>
-                        <td class="fw-bold text-midnight">
-                            <span class="badge rounded-pill bg-dark text-gold px-3">@rol.Name</span>
+                        <td class="fw-bold ps-4">
+                            <span class="badge rounded-pill bg-dark text-gold px-3 py-2" style="font-size: 0.9rem;">
+                                @rol.Name
+                            </span>
                         </td>
-                        <td><small class="text-muted font-monospace">@rol.Id</small></td>
-                        <td class="text-center">
-                            <a asp-action="PermisosMenus" asp-route-id="@rol.Id" 
-                               class="btn btn-dark border-gold text-gold rounded-pill px-4 fw-bold shadow-sm">
-                                <i class="bi bi-list-check me-1"></i> Gestionar Permisos
-                            </a>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-action-circle btn-edit-circle" title="Editar Nombre" 
+                                        onclick="abrirModalEditar('@rol.Id', '@rol.Name')">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                
+                                <a asp-action="PermisosMenus" asp-route-id="@rol.Id" 
+                                   class="btn btn-action-circle btn-permisos-circle" title="Asignar Menús">
+                                    <i class="bi bi-list-check"></i>
+                                </a>
+
+                                <button class="btn btn-action-circle btn-delete-circle" title="Eliminar Rol" 
+                                        onclick="eliminarRol('@rol.Id', '@rol.Name')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -43,19 +86,72 @@
     </div>
 </div>
 
-<style>
-    /* Reutilizamos tu estilo de tablas para consistencia visual */
-    table thead.thead-blue th {
-        background-color: #0a2161 !important; 
-        color: #ffffff !important;
-        font-weight: 800 !important;
-        text-transform: uppercase;
-        padding: 15px !important;
-        border-bottom: 3px solid #d4af37 !important;
-        text-align: center;
-    }
-    
-    .text-midnight { color: #0a2161; }
-    .border-gold { border: 1px solid #d4af37 !important; }
-    .text-gold { color: #d4af37 !important; }
-</style>
+@section Scripts {
+    <script>
+        // --- CREAR ROL ---
+        async function abrirModalCrear() {
+            const { value: nombre } = await Swal.fire({
+                title: 'Nuevo Nivel de Acceso',
+                input: 'text',
+                inputLabel: 'Nombre del Rol (Ej: Cajero)',
+                showCancelButton: true,
+                confirmButtonText: 'Guardar',
+                customClass: { confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-4 mx-2' }
+            });
+
+            if (nombre) {
+                $.post('/Roles/Crear', { nombre: nombre }, function (res) {
+                    if (res.success) {
+                        Swal.fire('¡Creado!', res.message, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                });
+            }
+        }
+
+        // --- EDITAR ROL ---
+        async function abrirModalEditar(id, nombreActual) {
+            const { value: nuevoNombre } = await Swal.fire({
+                title: 'Editar Nombre del Rol',
+                input: 'text',
+                inputValue: nombreActual,
+                showCancelButton: true,
+                confirmButtonText: 'Actualizar',
+                customClass: { confirmButton: 'btn btn-dark border-gold text-gold rounded-pill px-4 mx-2' }
+            });
+
+            if (nuevoNombre && nuevoNombre !== nombreActual) {
+                $.post('/Roles/Editar', { id: id, nuevoNombre: nuevoNombre }, function (res) {
+                    if (res.success) {
+                        Swal.fire('¡Actualizado!', res.message, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                });
+            }
+        }
+
+        // --- ELIMINAR ROL ---
+        function eliminarRol(id, nombre) {
+            Swal.fire({
+                title: `¿Eliminar nivel: ${nombre}?`,
+                text: "Esta acción no se puede deshacer.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                customClass: { confirmButton: 'btn btn-danger rounded-pill px-4 mx-2' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Roles/Eliminar', { id: id }, function (res) {
+                        if (res.success) {
+                            Swal.fire('Eliminado', res.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Atención', res.message, 'warning');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}
